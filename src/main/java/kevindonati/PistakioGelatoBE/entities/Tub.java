@@ -38,12 +38,12 @@ public class Tub {
     @Column(nullable = false)
     private boolean available;
 
-    public Tub(String name, String description, int weight, double price, int max_flavors, String image, boolean available) {
+    public Tub(String name, String description, int weight, double price, int maxFlavors, String image, boolean available) {
         this.name = name;
         this.description = description;
         this.weight = weight;
         this.price = price;
-        this.max_flavors = max_flavors;
+        this.maxFlavors = maxFlavors;
         this.image = image;
         this.available = available;
     }
