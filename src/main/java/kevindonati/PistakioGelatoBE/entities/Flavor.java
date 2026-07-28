@@ -46,4 +46,17 @@ public class Flavor {
 
     @Column(nullable = false, name = "sugar_free")
     private boolean sugarFree;
+
+    public Flavor(String name, String description, String referralCode, String image, int stockPortions, boolean available, boolean vegan, boolean lactoseFree, boolean glutenFree, boolean sugarFree) {
+        this.name = name;
+        this.description = description;
+        this.referralCode = referralCode;
+        this.image = image;
+        this.stockPortions = stockPortions;
+        this.available = available;
+        this.vegan = vegan;
+        this.lactoseFree = lactoseFree;
+        this.glutenFree = glutenFree;
+        this.sugarFree = sugarFree;
+    }
 }
