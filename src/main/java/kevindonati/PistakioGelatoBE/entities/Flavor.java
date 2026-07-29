@@ -47,7 +47,11 @@ public class Flavor {
     @Column(nullable = false, name = "sugar_free")
     private boolean sugarFree;
 
-    public Flavor(String name, String description, String referralCode, String image, int stockPortions, boolean available, boolean vegan, boolean lactoseFree, boolean glutenFree, boolean sugarFree) {
+    @ManyToOne
+    @JoinColumn(name = "id_category", nullable = false)
+    private Category category;
+
+    public Flavor(String name, String description, String referralCode, String image, int stockPortions, boolean available, boolean vegan, boolean lactoseFree, boolean glutenFree, boolean sugarFree, Category category) {
         this.name = name;
         this.description = description;
         this.referralCode = referralCode;
@@ -58,5 +62,6 @@ public class Flavor {
         this.lactoseFree = lactoseFree;
         this.glutenFree = glutenFree;
         this.sugarFree = sugarFree;
+        this.category = category;
     }
 }
