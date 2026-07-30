@@ -22,6 +22,7 @@ public class Shipment {
     @Setter(AccessLevel.NONE)
     private UUID id;
 
+    @Column(nullable = false)
     private String carrier;
 
     @Column(name = "tracking_number")
@@ -32,8 +33,7 @@ public class Shipment {
 
     @Column(name = "estimated_delivery")
     private LocalDate estimatedDelivery;
-
-
+    
     @Column(name = "delivered_at")
     private LocalDate deliveredAt;
 
