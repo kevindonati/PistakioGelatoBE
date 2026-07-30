@@ -9,6 +9,8 @@ import java.util.UUID;
 
 @Repository
 public interface FlavorRepository extends JpaRepository<Flavor, UUID> {
+    boolean existsByName(String name);
+    
     List<Flavor> findByAvailableTrue();
 
     List<Flavor> findByCategoryId(UUID categoryId);
