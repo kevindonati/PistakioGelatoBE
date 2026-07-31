@@ -45,7 +45,7 @@ public class Order {
     private User user;
 
     @ManyToOne
-    @JoinColumn(name = "id_address", nullable = false)
+    @JoinColumn(name = "id_address")
     private Address address;
 
     public Order(OrderStatus orderStatus, double shippingCost, double total, String notes, User user, Address address) {
