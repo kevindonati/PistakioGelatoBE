@@ -33,10 +33,15 @@ public class OrderItem {
     @JoinColumn(nullable = false, name = "id_flavor")
     private Flavor flavor;
 
-    public OrderItem(int quantity, double unitPrice, Order order, Flavor flavor) {
+    @ManyToOne
+    @JoinColumn(name = "id_tub", nullable = false)
+    private Tub tub;
+
+    public OrderItem(int quantity, double unitPrice, Order order, Flavor flavor, Tub tub) {
         this.quantity = quantity;
         this.unitPrice = unitPrice;
         this.order = order;
         this.flavor = flavor;
+        this.tub = tub;
     }
 }

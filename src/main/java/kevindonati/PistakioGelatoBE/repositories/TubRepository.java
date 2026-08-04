@@ -1,0 +1,13 @@
+package kevindonati.PistakioGelatoBE.repositories;
+
+import kevindonati.PistakioGelatoBE.entities.Tub;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.UUID;
+
+@Repository
+public interface TubRepository extends JpaRepository<Tub, UUID> {
+    boolean existsByName(String name);
+
+}

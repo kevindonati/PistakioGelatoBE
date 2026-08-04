@@ -134,6 +134,10 @@ public class OrderService {
         return orderRepository.save(foundedOrder);
     }
 
+    public Order saveOrder(Order order) {
+        return orderRepository.save(order);
+    }
+
     public Page<Order> findAll(int page, int size, String orderBy) {
         if (size > 50) size = 50;
         if (size < 1) size = 10;
