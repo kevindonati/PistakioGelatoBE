@@ -35,7 +35,7 @@ public class Tub {
     @Column(nullable = false)
     private boolean available;
 
-    public Tub(String name, String description, double weight, double price, String image, boolean available) {
+    public Tub(String name, String description, int weight, double price, String image, boolean available) {
         this.name = name;
         this.description = description;
         this.weight = weight;
