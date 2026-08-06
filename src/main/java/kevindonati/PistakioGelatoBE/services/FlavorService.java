@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -82,5 +83,25 @@ public class FlavorService {
     public void findByIdAndDelete(UUID id) {
         Flavor foundedFlavor = this.findById(id);
         flavorRepository.delete(foundedFlavor);
+    }
+
+    public List<Flavor> findAvailable() {
+        return flavorRepository.findByAvailableTrue();
+    }
+
+    public List<Flavor> findVegan() {
+        return flavorRepository.findByVeganTrue();
+    }
+
+    public List<Flavor> findGlutenFree() {
+        return flavorRepository.findByGlutenFreeTrue();
+    }
+
+    public List<Flavor> findLactoseFree() {
+        return flavorRepository.findByLactoseFreeTrue();
+    }
+
+    public List<Flavor> findSugarFree() {
+        return flavorRepository.findBySugarFreeTrue();
     }
 }
