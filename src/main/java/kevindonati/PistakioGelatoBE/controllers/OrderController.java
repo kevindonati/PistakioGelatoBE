@@ -1,0 +1,46 @@
+package kevindonati.PistakioGelatoBE.controllers;
+
+import kevindonati.PistakioGelatoBE.entities.Order;
+import kevindonati.PistakioGelatoBE.payloads.CheckoutDTO;
+import kevindonati.PistakioGelatoBE.payloads.OrderCreateDTO;
+import kevindonati.PistakioGelatoBE.payloads.OrderResponseDTO;
+import kevindonati.PistakioGelatoBE.services.OrderService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+@RestController
+@RequestMapping("/orders")
+public class OrderController {
+    @Autowired
+    private OrderService orderService;
+
+    @GetMapping
+    public Page<Order> findAll(@RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "10") int size,
+                               @RequestParam(defaultValue = "name") String orderBy
+    ) {
+        return orderService.findAll(page, size, orderBy);
+    }
+
+    @GetMapping("/{id}")
+    public Order findById(@PathVariable UUID id) {
+        return orderService.findById(id);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public OrderResponseDTO save(@RequestBody @Validated OrderCreateDTO payload) {
+        Order savedOrder = orderService.save(payload);
+        return new OrderResponseDTO(savedOrder.getId());
+    }
+
+    @PutMapping("/{id}/checkout")
+    public Order checkout(@PathVariable UUID id, @RequestBody @Validated CheckoutDTO payload) {
+        return orderService.checkout(id, payload);
+    }
+}
