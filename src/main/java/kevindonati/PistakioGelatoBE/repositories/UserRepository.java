@@ -1,7 +1,9 @@
 package kevindonati.PistakioGelatoBE.repositories;
 
 import kevindonati.PistakioGelatoBE.entities.User;
-import org.hibernate.internal.util.Optional;
+
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
