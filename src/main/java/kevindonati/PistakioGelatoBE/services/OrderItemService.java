@@ -76,6 +76,10 @@ public class OrderItemService {
             return saved;
         }
 
+        if (payload.quantity() > foundedFlavor.getStockPortions()) {
+            throw new BadRequestException("Not enough stock");
+        }
+
         double tubPrice = foundedTub.getPrice();
 
         OrderItem newOrderItem = new OrderItem(
@@ -110,9 +114,24 @@ public class OrderItemService {
             throw new BadRequestException("You can only modify a cart");
         }
 
+        if (payload.quantity() > foundedOrderItem.getFlavor().getStockPortions()) {
+            throw new BadRequestException("Not enough stock");
+        }
+
         foundedOrderItem.setQuantity(payload.quantity());
         OrderItem saved = orderItemRepository.save(foundedOrderItem);
         recalculateOrderTotal(foundedOrderItem.getOrder());
         return saved;
+    }
+
+    public void findByIdAndDelete(UUID id) {
+        OrderItem foundedOrderItem = this.findById(id);
+        if (foundedOrderItem.getOrder().getOrderStatus() != OrderStatus.CART) {
+            throw new BadRequestException("You can only modify a cart");
+        }
+
+        Order order = foundedOrderItem.getOrder();
+        orderItemRepository.delete(foundedOrderItem);
+        recalculateOrderTotal(order);
     }
 }
