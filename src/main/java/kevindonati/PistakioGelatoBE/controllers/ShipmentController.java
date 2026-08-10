@@ -1,12 +1,14 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
 import kevindonati.PistakioGelatoBE.entities.Shipment;
+import kevindonati.PistakioGelatoBE.enums.ShipmentStatus;
 import kevindonati.PistakioGelatoBE.payloads.ShipmentDTO;
 import kevindonati.PistakioGelatoBE.payloads.ShipmentResponseDTO;
 import kevindonati.PistakioGelatoBE.services.ShipmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,10 +36,27 @@ public class ShipmentController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN')")
     public ShipmentResponseDTO save(
             @RequestBody @Validated ShipmentDTO payload
     ) {
         Shipment savedShipment = shipmentService.save(payload);
         return new ShipmentResponseDTO(savedShipment.getId());
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PatchMapping("/{id}/status")
+    public Shipment updateStatus(
+            @PathVariable UUID id,
+            @RequestParam ShipmentStatus status
+    ) {
+        return shipmentService.updateStatus(id, status);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void findByIdAndDelete(@PathVariable UUID id) {
+        shipmentService.findByIdAndDelete(id);
     }
 }

@@ -1,10 +1,8 @@
 package kevindonati.PistakioGelatoBE.services;
 
-import kevindonati.PistakioGelatoBE.entities.Flavor;
-import kevindonati.PistakioGelatoBE.entities.Order;
-import kevindonati.PistakioGelatoBE.entities.OrderItem;
-import kevindonati.PistakioGelatoBE.entities.Tub;
+import kevindonati.PistakioGelatoBE.entities.*;
 import kevindonati.PistakioGelatoBE.enums.OrderStatus;
+import kevindonati.PistakioGelatoBE.enums.UserRole;
 import kevindonati.PistakioGelatoBE.exceptions.BadRequestException;
 import kevindonati.PistakioGelatoBE.exceptions.NotFoundException;
 import kevindonati.PistakioGelatoBE.payloads.OrderItemDTO;
@@ -14,6 +12,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,6 +31,10 @@ public class OrderItemService {
     @Autowired
     private TubService tubService;
 
+    private User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (User) authentication.getPrincipal();
+    }
 
     private void recalculateOrderTotal(Order order) {
         List<OrderItem> orderItems = orderItemRepository.findByOrder(order);
@@ -55,7 +59,6 @@ public class OrderItemService {
         if (!foundedTub.isAvailable()) {
             throw new BadRequestException("This tub is not available");
         }
-
         if (!foundedFlavor.isAvailable()) {
             throw new BadRequestException("This flavor is not available");
         }
@@ -73,6 +76,7 @@ public class OrderItemService {
             item.setQuantity(newQuantity);
             OrderItem saved = orderItemRepository.save(item);
             recalculateOrderTotal(foundedOrder);
+
             return saved;
         }
 
@@ -95,23 +99,39 @@ public class OrderItemService {
         return saved;
     }
 
-    public Page<OrderItem> findAll(int page, int size, String sortBy) {
+    public Page<OrderItem> findAll(int page, int size, String orderBy) {
         if (size > 50) size = 50;
         if (size < 1) size = 10;
         if (page < 0) page = 0;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(orderBy));
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(sortBy));
-        return orderItemRepository.findAll(pageable);
+        User authenticatedUser = getAuthenticatedUser();
+        if (authenticatedUser.getRole() == UserRole.ADMIN) {
+            return orderItemRepository.findAll(pageable);
+        }
+        return orderItemRepository.findByOrderUserId(authenticatedUser.getId(), pageable);
     }
 
     public OrderItem findById(UUID id) {
-        return orderItemRepository.findById(id).orElseThrow(() -> new NotFoundException("OrderItem with id " + id + " not found"));
+        OrderItem foundedOrderItem = orderItemRepository.findById(id).orElseThrow(() -> new NotFoundException("OrderItem with id " + id + " not found"));
+        orderService.findById(foundedOrderItem.getOrder().getId());
+
+        return foundedOrderItem;
     }
 
     public OrderItem findByIdAndUpdate(UUID id, OrderItemDTO payload) {
         OrderItem foundedOrderItem = findById(id);
+
         if (foundedOrderItem.getOrder().getOrderStatus() != OrderStatus.CART) {
             throw new BadRequestException("You can only modify a cart");
+        }
+
+        if (!foundedOrderItem.getFlavor().isAvailable()) {
+            throw new BadRequestException("This flavor is not available");
+        }
+
+        if (!foundedOrderItem.getTub().isAvailable()) {
+            throw new BadRequestException("This tub is not available");
         }
 
         if (payload.quantity() > foundedOrderItem.getFlavor().getStockPortions()) {
@@ -121,6 +141,7 @@ public class OrderItemService {
         foundedOrderItem.setQuantity(payload.quantity());
         OrderItem saved = orderItemRepository.save(foundedOrderItem);
         recalculateOrderTotal(foundedOrderItem.getOrder());
+
         return saved;
     }
 

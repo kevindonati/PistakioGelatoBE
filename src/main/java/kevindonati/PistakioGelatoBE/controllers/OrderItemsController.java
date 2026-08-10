@@ -1,7 +1,6 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
 import jakarta.validation.Valid;
-import kevindonati.PistakioGelatoBE.entities.Category;
 import kevindonati.PistakioGelatoBE.entities.OrderItem;
 import kevindonati.PistakioGelatoBE.payloads.OrderItemDTO;
 import kevindonati.PistakioGelatoBE.payloads.OrderItemResponseDTO;

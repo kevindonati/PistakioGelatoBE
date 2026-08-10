@@ -2,8 +2,10 @@ package kevindonati.PistakioGelatoBE.services;
 
 import kevindonati.PistakioGelatoBE.entities.Order;
 import kevindonati.PistakioGelatoBE.entities.Shipment;
+import kevindonati.PistakioGelatoBE.entities.User;
 import kevindonati.PistakioGelatoBE.enums.OrderStatus;
 import kevindonati.PistakioGelatoBE.enums.ShipmentStatus;
+import kevindonati.PistakioGelatoBE.enums.UserRole;
 import kevindonati.PistakioGelatoBE.exceptions.BadRequestException;
 import kevindonati.PistakioGelatoBE.exceptions.NotFoundException;
 import kevindonati.PistakioGelatoBE.payloads.ShipmentDTO;
@@ -13,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -26,10 +30,16 @@ public class ShipmentService {
     @Autowired
     private OrderService orderService;
 
+    private User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (User) authentication.getPrincipal();
+    }
+
+
     public Shipment save(ShipmentDTO payload) {
         Order foundedOrder = orderService.findById(payload.order());
 
-        if (foundedOrder.getOrderStatus() != OrderStatus.PREPARING) {
+        if (foundedOrder.getOrderStatus() != OrderStatus.PAID && foundedOrder.getOrderStatus() != OrderStatus.PREPARING) {
             throw new BadRequestException("Order is not ready to be shipped");
         }
 
@@ -45,13 +55,19 @@ public class ShipmentService {
         if (size > 50) size = 50;
         if (size < 1) size = 10;
         if (page < 0) page = 0;
-
         Pageable pageable = PageRequest.of(page, size, Sort.by(orderBy));
-        return shipmentRepository.findAll(pageable);
+
+        User authenticatedUser = getAuthenticatedUser();
+        if (authenticatedUser.getRole() == UserRole.ADMIN) {
+            return shipmentRepository.findAll(pageable);
+        }
+        return shipmentRepository.findByOrderUserId(authenticatedUser.getId(), pageable);
     }
 
     public Shipment findById(UUID id) {
-        return shipmentRepository.findById(id).orElseThrow(() -> new NotFoundException("Shipment with id " + id + " not found"));
+        Shipment foundedShipment = shipmentRepository.findById(id).orElseThrow(() -> new NotFoundException("Shipment with id " + id + " not found"));
+        orderService.findById(foundedShipment.getOrder().getId());
+        return foundedShipment;
     }
 
     public Shipment updateStatus(UUID id, ShipmentStatus status) {

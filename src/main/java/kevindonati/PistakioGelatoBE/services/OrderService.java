@@ -4,16 +4,19 @@ import kevindonati.PistakioGelatoBE.entities.Address;
 import kevindonati.PistakioGelatoBE.entities.Order;
 import kevindonati.PistakioGelatoBE.entities.User;
 import kevindonati.PistakioGelatoBE.enums.OrderStatus;
+import kevindonati.PistakioGelatoBE.enums.UserRole;
 import kevindonati.PistakioGelatoBE.exceptions.BadRequestException;
 import kevindonati.PistakioGelatoBE.exceptions.NotFoundException;
+import kevindonati.PistakioGelatoBE.exceptions.UnauthorizedException;
 import kevindonati.PistakioGelatoBE.payloads.CheckoutDTO;
-import kevindonati.PistakioGelatoBE.payloads.OrderCreateDTO;
 import kevindonati.PistakioGelatoBE.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,22 +26,35 @@ import java.util.UUID;
 public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
-    @Autowired
-    private UserService userService;
+
     @Autowired
     private AddressService addressService;
 
-    public Order findById(UUID id) {
-        return orderRepository.findById(id).orElseThrow(() -> new NotFoundException("Order with id " + id + " not found"));
+    private User getAuthenticatedUser() {
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        return (User) authentication.getPrincipal();
     }
 
-    public Order save(OrderCreateDTO payload) {
-        User foundedUser = userService.findById(payload.user());
-        Order newOrder = new Order(OrderStatus.CART,
+    public Order findById(UUID id) {
+        Order foundedOrder = orderRepository.findById(id).orElseThrow(() -> new NotFoundException("Order with id " + id + " not found"));
+        User authenticatedUser = getAuthenticatedUser();
+
+        if (authenticatedUser.getRole() != UserRole.ADMIN && !foundedOrder.getUser().getId().equals(authenticatedUser.getId())) {
+            throw new UnauthorizedException("You cannot access another user's order");
+        }
+        return foundedOrder;
+    }
+
+    public Order save() {
+        User authenticatedUser = getAuthenticatedUser();
+        Order newOrder = new Order(
+                OrderStatus.CART,
                 0.0,
                 0.0,
                 null,
-                foundedUser,
+                authenticatedUser,
                 null);
         return orderRepository.save(newOrder);
     }
@@ -46,9 +62,7 @@ public class OrderService {
     public Order checkout(UUID id, CheckoutDTO payload) {
         Order foundedOrder = this.findById(id);
         Address foundedAddress = addressService.findById(payload.address());
-        if (!foundedAddress.getUser().getId().equals(foundedOrder.getUser().getId())) {
-            throw new BadRequestException("The selected address does not belong to the user");
-        }
+
         if (foundedOrder.getOrderStatus() != OrderStatus.CART) {
             throw new BadRequestException("Only carts can be checked out");
         }
@@ -120,17 +134,12 @@ public class OrderService {
 
     public Order cancelOrder(UUID id) {
         Order foundedOrder = this.findById(id);
-
-        if (foundedOrder.getOrderStatus() == OrderStatus.DELIVERED) {
-            throw new BadRequestException("Delivered orders cannot be cancelled");
-        }
-        if (foundedOrder.getOrderStatus() == OrderStatus.CANCELLED) {
-            throw new BadRequestException("Order is already cancelled");
+        if (foundedOrder.getOrderStatus() != OrderStatus.CART && foundedOrder.getOrderStatus() != OrderStatus.PENDING_PAYMENT) {
+            throw new BadRequestException("This order cannot be cancelled at this stage");
         }
 
         foundedOrder.setOrderStatus(OrderStatus.CANCELLED);
         foundedOrder.setUpdatedAt(LocalDateTime.now());
-
         return orderRepository.save(foundedOrder);
     }
 
@@ -144,7 +153,12 @@ public class OrderService {
         if (page < 0) page = 0;
         Pageable pageable = PageRequest.of(page, size, Sort.by(orderBy));
 
-        return orderRepository.findAll(pageable);
+        User authenticatedUser = getAuthenticatedUser();
+        if (authenticatedUser.getRole() == UserRole.ADMIN) {
+            return orderRepository.findAll(pageable);
+        }
+
+        return orderRepository.findByUserId(authenticatedUser.getId(), pageable);
     }
 
 

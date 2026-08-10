@@ -2,8 +2,10 @@ package kevindonati.PistakioGelatoBE.services;
 
 import kevindonati.PistakioGelatoBE.entities.Order;
 import kevindonati.PistakioGelatoBE.entities.Payment;
+import kevindonati.PistakioGelatoBE.entities.User;
 import kevindonati.PistakioGelatoBE.enums.OrderStatus;
 import kevindonati.PistakioGelatoBE.enums.PaymentStatus;
+import kevindonati.PistakioGelatoBE.enums.UserRole;
 import kevindonati.PistakioGelatoBE.exceptions.BadRequestException;
 import kevindonati.PistakioGelatoBE.exceptions.NotFoundException;
 import kevindonati.PistakioGelatoBE.payloads.PaymentDTO;
@@ -13,6 +15,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -24,6 +28,11 @@ public class PaymentService {
 
     @Autowired
     private OrderService orderService;
+
+    private User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (User) authentication.getPrincipal();
+    }
 
     public Payment save(PaymentDTO payload) {
         Order foundedOrder = orderService.findById(payload.order());
@@ -54,12 +63,19 @@ public class PaymentService {
         if (size > 50) size = 50;
         if (size < 1) size = 10;
         if (page < 0) page = 0;
-
         Pageable pageable = PageRequest.of(page, size, Sort.by(orderBy));
-        return paymentRepository.findAll(pageable);
+
+        User authenticatedUser = getAuthenticatedUser();
+
+        if (authenticatedUser.getRole() == UserRole.ADMIN) {
+            return paymentRepository.findAll(pageable);
+        }
+        return paymentRepository.findByOrderUserId(authenticatedUser.getId(), pageable);
     }
 
     public Payment findById(UUID id) {
-        return paymentRepository.findById(id).orElseThrow(() -> new NotFoundException("Payment with id " + id + " not found"));
+        Payment foundedPayment = paymentRepository.findById(id).orElseThrow(() -> new NotFoundException("Payment with id " + id + " not found"));
+        orderService.findById(foundedPayment.getOrder().getId());
+        return foundedPayment;
     }
 }

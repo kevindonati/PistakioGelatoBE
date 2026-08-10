@@ -8,6 +8,7 @@ import kevindonati.PistakioGelatoBE.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,13 +35,41 @@ public class OrderController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public OrderResponseDTO save(@RequestBody @Validated OrderCreateDTO payload) {
-        Order savedOrder = orderService.save(payload);
-        return new OrderResponseDTO(savedOrder.getId());
+    public Order save() {
+        return orderService.save();
     }
 
     @PutMapping("/{id}/checkout")
     public Order checkout(@PathVariable UUID id, @RequestBody @Validated CheckoutDTO payload) {
         return orderService.checkout(id, payload);
+    }
+
+    @PutMapping("/{id}/cancel")
+    public Order cancelOrder(@PathVariable UUID id) {
+        return orderService.cancelOrder(id);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}/confirm-payment")
+    public Order confirmPayment(@PathVariable UUID id) {
+        return orderService.confirmPayment(id);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}/prepare")
+    public Order startPreparation(@PathVariable UUID id) {
+        return orderService.startPreparation(id);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}/ship")
+    public Order shipOrder(@PathVariable UUID id) {
+        return orderService.shipOrder(id);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}/deliver")
+    public Order deliverOrder(@PathVariable UUID id) {
+        return orderService.deliverOrder(id);
     }
 }
