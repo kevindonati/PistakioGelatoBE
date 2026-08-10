@@ -20,15 +20,6 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public User save(UserDTO payload) {
-        if (userRepository.existsByEmail(payload.email())) {
-            throw new BadRequestException("The email " + payload.email() + " is already registered");
-        }
-
-        User newUser = new User(payload.name(), payload.surname(), payload.email(), payload.password(), payload.phone());
-        return userRepository.save(newUser);
-    }
-
     public Page<User> findAll(int page, int size, String orderBy) {
         if (size > 50) size = 50;
         if (size < 1) size = 10;
