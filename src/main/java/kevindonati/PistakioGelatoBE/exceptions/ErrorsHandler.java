@@ -3,6 +3,7 @@ package kevindonati.PistakioGelatoBE.exceptions;
 import kevindonati.PistakioGelatoBE.payloads.ErrorsDTO;
 import kevindonati.PistakioGelatoBE.payloads.ErrorsWithListDTO;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -71,6 +72,15 @@ public class ErrorsHandler {
         ex.printStackTrace();
         return new ErrorsDTO(
                 "Si è verificato un errore interno del server.",
+                LocalDateTime.now()
+        );
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public ErrorsDTO handleAccessDenied(AccessDeniedException ex) {
+        return new ErrorsDTO(
+                "You do not have permission to perform this action",
                 LocalDateTime.now()
         );
     }

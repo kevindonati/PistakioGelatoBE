@@ -7,6 +7,7 @@ import kevindonati.PistakioGelatoBE.services.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,18 +34,21 @@ public class CategoryController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN')")
     public CategoryResponseDTO save(@RequestBody @Validated CategoryDTO payload) {
         Category savedCategory = categoryService.save(payload);
         return new CategoryResponseDTO(savedCategory.getId());
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public Category findByIdAndUpdate(@PathVariable UUID id, @RequestBody @Validated CategoryDTO payload) {
         return categoryService.findByIdAndUpdate(id, payload);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN')")
     public void findByIdAndDelete(@PathVariable UUID id) {
         categoryService.findByIdAndDelete(id);
     }

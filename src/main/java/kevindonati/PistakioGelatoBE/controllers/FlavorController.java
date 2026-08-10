@@ -7,6 +7,7 @@ import kevindonati.PistakioGelatoBE.services.FlavorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,18 +35,21 @@ public class FlavorController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN')")
     public FlavorResponseDTO save(@RequestBody @Validated FlavorDTO payload) {
         Flavor savedFlavor = flavorService.save(payload);
         return new FlavorResponseDTO(savedFlavor.getId());
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public Flavor findByIdAndUpdate(@PathVariable UUID id, @RequestBody @Validated FlavorDTO payload) {
         return flavorService.findByIdAndUpdate(id, payload);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN')")
     public void findByIdAndDelete(@PathVariable UUID id) {
         flavorService.findByIdAndDelete(id);
     }

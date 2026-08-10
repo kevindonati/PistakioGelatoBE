@@ -7,6 +7,7 @@ import kevindonati.PistakioGelatoBE.services.TubService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,18 +34,21 @@ public class TubController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('ADMIN')")
     public TubResponseDTO save(@RequestBody @Validated TubDTO payload) {
         Tub savedTub = tubService.save(payload);
         return new TubResponseDTO(savedTub.getId());
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public Tub findByIdAndUpdate(@PathVariable UUID id, @RequestBody @Validated TubDTO payload) {
         return tubService.findByIdAndUpdate(id, payload);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('ADMIN')")
     public void findByIdAndDelete(@PathVariable UUID id) {
         tubService.findByIdAndDelete(id);
     }
