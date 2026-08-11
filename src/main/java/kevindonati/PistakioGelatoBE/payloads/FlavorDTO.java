@@ -17,7 +17,7 @@ public record FlavorDTO(
 
         String image,
 
-        @NotBlank(message = "The stock quantity for the flavor is mandatory")
+        @NotNull(message = "The stock quantity for the flavor is mandatory")
         @Min(value = 0, message = "The stoch can't be lower than 0")
         int stockPortions,
 
