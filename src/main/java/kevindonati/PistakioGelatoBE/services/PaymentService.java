@@ -78,4 +78,17 @@ public class PaymentService {
         orderService.findById(foundedPayment.getOrder().getId());
         return foundedPayment;
     }
+
+    public Payment completeStripePayment(String transactionId) {
+        Payment foundedPayment = paymentRepository.findByIdTransaction(transactionId).orElseThrow(() -> new NotFoundException("Payment with transaction " + transactionId + " not found"));
+
+        if (foundedPayment.getStatus() == PaymentStatus.COMPLETED) {
+            return foundedPayment;
+        }
+
+        foundedPayment.setStatus(PaymentStatus.COMPLETED);
+        orderService.confirmPaymentFromStripe(foundedPayment.getOrder().getId());
+
+        return paymentRepository.save(foundedPayment);
+    }
 }

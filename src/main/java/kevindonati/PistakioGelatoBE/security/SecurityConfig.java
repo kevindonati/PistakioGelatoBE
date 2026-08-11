@@ -39,6 +39,7 @@ public class SecurityConfig {
                 .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/payments/webhook").permitAll()
                         .anyRequest().authenticated()
                 );
         return httpSecurity.build();
