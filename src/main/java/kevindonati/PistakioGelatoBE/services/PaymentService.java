@@ -18,7 +18,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -79,7 +81,13 @@ public class PaymentService {
         return foundedPayment;
     }
 
-    public Payment completeStripePayment(String transactionId) {
+    @Transactional
+    public Payment completeStripePayment(String transactionId, String eventId) {
+        Optional<Payment> alreadyProcessed = paymentRepository.findByStripeEventId(eventId);
+        if (alreadyProcessed.isPresent()) {
+            return alreadyProcessed.get();
+        }
+
         Payment foundedPayment = paymentRepository.findByIdTransaction(transactionId).orElseThrow(() -> new NotFoundException("Payment with transaction " + transactionId + " not found"));
 
         if (foundedPayment.getStatus() == PaymentStatus.COMPLETED) {
@@ -87,7 +95,10 @@ public class PaymentService {
         }
 
         foundedPayment.setStatus(PaymentStatus.COMPLETED);
-        orderService.confirmPaymentFromStripe(foundedPayment.getOrder().getId());
+        foundedPayment.setStripeEventId(eventId);
+
+        Order order = orderService.confirmPaymentFromStripe(foundedPayment.getOrder().getId());
+        orderService.decreaseStock(order);
 
         return paymentRepository.save(foundedPayment);
     }

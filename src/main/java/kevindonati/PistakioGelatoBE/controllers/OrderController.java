@@ -50,12 +50,6 @@ public class OrderController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/{id}/confirm-payment")
-    public Order confirmPayment(@PathVariable UUID id) {
-        return orderService.confirmPayment(id);
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}/prepare")
     public Order startPreparation(@PathVariable UUID id) {
         return orderService.startPreparation(id);

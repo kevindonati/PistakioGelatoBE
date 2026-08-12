@@ -1,14 +1,14 @@
 package kevindonati.PistakioGelatoBE.services;
 
-import kevindonati.PistakioGelatoBE.entities.Address;
-import kevindonati.PistakioGelatoBE.entities.Order;
-import kevindonati.PistakioGelatoBE.entities.User;
+import kevindonati.PistakioGelatoBE.entities.*;
 import kevindonati.PistakioGelatoBE.enums.OrderStatus;
 import kevindonati.PistakioGelatoBE.enums.UserRole;
 import kevindonati.PistakioGelatoBE.exceptions.BadRequestException;
 import kevindonati.PistakioGelatoBE.exceptions.NotFoundException;
 import kevindonati.PistakioGelatoBE.exceptions.UnauthorizedException;
 import kevindonati.PistakioGelatoBE.payloads.CheckoutDTO;
+import kevindonati.PistakioGelatoBE.repositories.FlavorRepository;
+import kevindonati.PistakioGelatoBE.repositories.OrderItemRepository;
 import kevindonati.PistakioGelatoBE.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,12 +20,19 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private FlavorRepository flavorRepository;
+
+    @Autowired
+    private OrderItemRepository orderItemRepository;
 
     @Autowired
     private AddressService addressService;
@@ -78,18 +85,6 @@ public class OrderService {
 
         foundedOrder.setOrderStatus(OrderStatus.PENDING_PAYMENT);
         foundedOrder.setUpdatedAt(LocalDateTime.now());
-        return orderRepository.save(foundedOrder);
-    }
-
-    public Order confirmPayment(UUID id) {
-        Order foundedOrder = this.findById(id);
-        if (foundedOrder.getOrderStatus() != OrderStatus.PENDING_PAYMENT) {
-            throw new BadRequestException("Order is not waiting for payment");
-        }
-
-        foundedOrder.setOrderStatus(OrderStatus.PAID);
-        foundedOrder.setUpdatedAt(LocalDateTime.now());
-
         return orderRepository.save(foundedOrder);
     }
 
@@ -172,6 +167,26 @@ public class OrderService {
         foundedOrder.setUpdatedAt(LocalDateTime.now());
 
         return orderRepository.save(foundedOrder);
+    }
+
+    public void decreaseStock(Order order) {
+        List<OrderItem> orderItems = orderItemRepository.findByOrder(order);
+
+        for (OrderItem item : orderItems) {
+            Flavor flavor = item.getFlavor();
+
+            int newStock = flavor.getStockPortions() - item.getQuantity();
+
+            if (newStock < 0) {
+                throw new BadRequestException("Not enough stock for flavor " + flavor.getName());
+            }
+
+            flavor.setStockPortions(newStock);
+            if (newStock == 0) {
+                flavor.setAvailable(false);
+            }
+            flavorRepository.save(flavor);
+        }
     }
 
 }

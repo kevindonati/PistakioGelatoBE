@@ -18,4 +18,6 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
 
     Page<Payment> findByOrderUserId(UUID userId, Pageable pageable);
 
+    Optional<Payment> findByStripeEventId(String stripeEventId);
+
 }

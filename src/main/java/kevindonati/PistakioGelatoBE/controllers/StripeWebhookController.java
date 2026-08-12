@@ -42,7 +42,7 @@ public class StripeWebhookController {
                 String orderId = session.getClientReferenceId();
                 System.out.println("Stripe session: " + sessionId);
                 System.out.println("Order collegato: " + orderId);
-                paymentService.completeStripePayment(sessionId);
+                paymentService.completeStripePayment(sessionId, event.getId());
             } catch (Exception e) {
                 e.printStackTrace();
                 return ResponseEntity.internalServerError().body("Error processing webhook");

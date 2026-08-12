@@ -29,6 +29,9 @@ public class Payment {
     @Column(name = "id_transaction", nullable = false)
     private String idTransaction;
 
+    @Column(name = "id_stripe_event", unique = true)
+    private String stripeEventId;
+
     @Column(nullable = false)
     private double amount;
 
