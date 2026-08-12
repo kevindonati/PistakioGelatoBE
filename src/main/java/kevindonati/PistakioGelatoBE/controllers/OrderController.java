@@ -54,16 +54,4 @@ public class OrderController {
     public Order startPreparation(@PathVariable UUID id) {
         return orderService.startPreparation(id);
     }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/{id}/ship")
-    public Order shipOrder(@PathVariable UUID id) {
-        return orderService.shipOrder(id);
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/{id}/deliver")
-    public Order deliverOrder(@PathVariable UUID id) {
-        return orderService.deliverOrder(id);
-    }
 }

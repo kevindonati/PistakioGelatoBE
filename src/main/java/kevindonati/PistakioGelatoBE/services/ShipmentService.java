@@ -72,17 +72,24 @@ public class ShipmentService {
 
     public Shipment updateStatus(UUID id, ShipmentStatus status) {
         Shipment foundedShipment = this.findById(id);
-        foundedShipment.setStatus(status);
-
         if (status == ShipmentStatus.SHIPPED) {
+            if (foundedShipment.getStatus() != ShipmentStatus.PENDING) {
+                throw new BadRequestException("Shipment must be pending before shipping");
+            }
+
+            foundedShipment.setStatus(ShipmentStatus.SHIPPED);
             orderService.shipOrder(foundedShipment.getOrder().getId());
         }
 
         if (status == ShipmentStatus.DELIVERED) {
+            if (foundedShipment.getStatus() != ShipmentStatus.SHIPPED) {
+                throw new BadRequestException("Shipment must be shipped before delivery");
+            }
+
+            foundedShipment.setStatus(ShipmentStatus.DELIVERED);
             foundedShipment.setDeliveredAt(LocalDate.now());
             orderService.deliverOrder(foundedShipment.getOrder().getId());
         }
-
         return shipmentRepository.save(foundedShipment);
     }
 
