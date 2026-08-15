@@ -31,6 +31,9 @@ public class PaymentService {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private EmailService emailService;
+
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return (User) authentication.getPrincipal();
@@ -99,6 +102,7 @@ public class PaymentService {
 
         Order order = orderService.confirmPaymentFromStripe(foundedPayment.getOrder().getId());
         orderService.decreaseStock(order);
+        emailService.sendPaymentCompleteEmail(order);
 
         return paymentRepository.save(foundedPayment);
     }
