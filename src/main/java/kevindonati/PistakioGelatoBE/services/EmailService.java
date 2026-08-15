@@ -41,15 +41,8 @@ public class EmailService {
 
         message.setFrom("kevindonati5@gmail.com");
         message.setTo(order.getUser().getEmail());
-        message.setSubject("Pagamento ricevuto - PistakioGelato");
-        message.setText(
-                "Ciao " + order.getUser().getName() + "!" +
-                        "Abbiamo ricevuto il pagamento del tuo ordine.\n" +
-                        "Ordine: " + order.getId() + "\n" +
-                        "Totale: €" + order.getTotal() + "\n" +
-                        "Il tuo ordine è stato preso in carico.\n" +
-                        "Grazie per aver scelto PistakioGelato!"
-        );
+        message.setSubject(getMessage("payment.subject", order.getUser().getLanguage()));
+        message.setText(getMessage("payment.text", order.getUser().getLanguage(), order.getUser().getName(), order.getId(), order.getTotal()));
         mailSender.send(message);
     }
 
