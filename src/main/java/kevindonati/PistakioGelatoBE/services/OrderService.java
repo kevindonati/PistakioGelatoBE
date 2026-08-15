@@ -40,6 +40,9 @@ public class OrderService {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private SettingsService settingsService;
+
     private User getAuthenticatedUser() {
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
@@ -91,9 +94,8 @@ public class OrderService {
             total += item.getQuantity() * item.getUnitPrice();
         }
 
-        // TODO: calcolare il costo della spedizione
-        foundedOrder.setShippingCost(6.00);
-        foundedOrder.setTotal(total + foundedOrder.getShippingCost());
+        double shippingCost = settingsService.getShippingCost();
+        foundedOrder.setTotal(total + shippingCost);
 
         foundedOrder.setOrderStatus(OrderStatus.PENDING_PAYMENT);
         foundedOrder.setUpdatedAt(LocalDateTime.now());
