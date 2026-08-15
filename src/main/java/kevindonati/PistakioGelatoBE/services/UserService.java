@@ -49,7 +49,7 @@ public class UserService {
                 !authenticatedUser.getId().equals(id)) {
             throw new UnauthorizedException("You can only update your own profile");
         }
-        
+
         User foundedUser = this.findById(id);
 
         if (!foundedUser.getEmail().equals(payload.email()) && userRepository.existsByEmail(payload.email())) {
@@ -59,6 +59,7 @@ public class UserService {
         foundedUser.setSurname(payload.surname());
         foundedUser.setEmail(payload.email());
         foundedUser.setPhone(payload.phone());
+        foundedUser.setLanguage(payload.language());
 
         return userRepository.save(foundedUser);
     }

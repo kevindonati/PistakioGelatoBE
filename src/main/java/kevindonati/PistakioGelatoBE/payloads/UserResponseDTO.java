@@ -1,5 +1,6 @@
 package kevindonati.PistakioGelatoBE.payloads;
 
+import kevindonati.PistakioGelatoBE.enums.Language;
 import kevindonati.PistakioGelatoBE.enums.UserRole;
 
 import java.util.UUID;
@@ -10,6 +11,7 @@ public record UserResponseDTO(UUID id,
                               String email,
                               String phone,
                               UserRole role,
-                              boolean enabled
+                              boolean enabled,
+                              Language language
 ) {
 }

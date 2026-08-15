@@ -2,6 +2,7 @@ package kevindonati.PistakioGelatoBE.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import kevindonati.PistakioGelatoBE.enums.Language;
 import kevindonati.PistakioGelatoBE.enums.UserRole;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -48,7 +49,11 @@ public class User {
     @Column(nullable = false)
     private boolean enabled;
 
-    public User(String name, String surname, String email, String password, String phone) {
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Language language = Language.EN;
+
+    public User(String name, String surname, String email, String password, String phone, Language language) {
         this.name = name;
         this.surname = surname;
         this.email = email;
@@ -57,5 +62,6 @@ public class User {
         this.createdAt = LocalDateTime.now();
         this.role = UserRole.USER;
         this.enabled = true;
+        this.language = language;
     }
 }

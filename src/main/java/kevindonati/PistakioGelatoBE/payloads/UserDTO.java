@@ -1,9 +1,7 @@
 package kevindonati.PistakioGelatoBE.payloads;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
+import kevindonati.PistakioGelatoBE.enums.Language;
 
 public record UserDTO(
         @NotBlank(message = "The name is mandatory")
@@ -23,6 +21,9 @@ public record UserDTO(
         )
         String password,
 
-        String phone
+        String phone,
+
+        @NotNull(message = "Language is mandatory")
+        Language language
 ) {
 }

@@ -37,7 +37,7 @@ public class UserController {
     @PutMapping("/{id}")
     public UserResponseDTO update(@PathVariable UUID id, @RequestBody @Validated UserUpdateDTO payload) {
         User updatedUser = userService.findByIdAndUpdate(id, payload);
-        return new UserResponseDTO(updatedUser.getId(), updatedUser.getName(), updatedUser.getSurname(), updatedUser.getEmail(), updatedUser.getPhone(), updatedUser.getRole(), updatedUser.isEnabled());
+        return new UserResponseDTO(updatedUser.getId(), updatedUser.getName(), updatedUser.getSurname(), updatedUser.getEmail(), updatedUser.getPhone(), updatedUser.getRole(), updatedUser.isEnabled(), updatedUser.getLanguage());
     }
 
     @DeleteMapping("/{id}")

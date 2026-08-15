@@ -39,7 +39,8 @@ public class AuthService {
                 payload.surname(),
                 payload.email(),
                 hashedPassword,
-                payload.phone()
+                payload.phone(),
+                payload.language()
         );
         User savedUser = userRepository.save(newUser);
         emailService.sendWelcomeEmail(savedUser);
