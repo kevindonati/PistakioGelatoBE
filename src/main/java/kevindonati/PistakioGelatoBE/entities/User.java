@@ -1,5 +1,6 @@
 package kevindonati.PistakioGelatoBE.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import kevindonati.PistakioGelatoBE.enums.UserRole;
 import lombok.AccessLevel;
@@ -15,6 +16,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
+@JsonIgnoreProperties({"password", "authorities"})
 public class User {
     @Id
     @GeneratedValue
