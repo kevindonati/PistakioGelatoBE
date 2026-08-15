@@ -1,6 +1,7 @@
 package kevindonati.PistakioGelatoBE.services;
 
 import kevindonati.PistakioGelatoBE.entities.Order;
+import kevindonati.PistakioGelatoBE.entities.Shipment;
 import kevindonati.PistakioGelatoBE.entities.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
@@ -39,6 +40,24 @@ public class EmailService {
                         "Ordine: " + order.getId() + "\n" +
                         "Totale: €" + order.getTotal() + "\n" +
                         "Il tuo ordine è stato preso in carico.\n" +
+                        "Grazie per aver scelto PistakioGelato!"
+        );
+        mailSender.send(message);
+    }
+
+    public void sendShippingEmail(Shipment shipment) {
+        SimpleMailMessage message = new SimpleMailMessage();
+
+        message.setFrom("kevindonati5@gmail.com");
+        message.setTo(shipment.getOrder().getUser().getEmail());
+        message.setSubject("Il tuo ordine è stato spedito - PistakioGelato");
+
+        message.setText(
+                "Ciao " + shipment.getOrder().getUser().getName() + "!\n" +
+                        "Il tuo ordine è stato spedito!\n" +
+                        "Ordine: " + shipment.getOrder().getId() + "\n" +
+                        "Corriere: " + shipment.getCarrier() + "\n" +
+                        "Tracking number: " + shipment.getTrackingNumber() + "\n" +
                         "Grazie per aver scelto PistakioGelato!"
         );
         mailSender.send(message);

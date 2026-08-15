@@ -30,6 +30,9 @@ public class ShipmentService {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private EmailService emailService;
+
     private User getAuthenticatedUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return (User) authentication.getPrincipal();
@@ -79,6 +82,7 @@ public class ShipmentService {
 
             foundedShipment.setStatus(ShipmentStatus.SHIPPED);
             orderService.shipOrder(foundedShipment.getOrder().getId());
+            emailService.sendShippingEmail(foundedShipment);
         }
 
         if (status == ShipmentStatus.DELIVERED) {
