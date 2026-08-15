@@ -2,8 +2,6 @@ package kevindonati.PistakioGelatoBE.controllers;
 
 import kevindonati.PistakioGelatoBE.entities.Order;
 import kevindonati.PistakioGelatoBE.payloads.CheckoutDTO;
-import kevindonati.PistakioGelatoBE.payloads.OrderCreateDTO;
-import kevindonati.PistakioGelatoBE.payloads.OrderResponseDTO;
 import kevindonati.PistakioGelatoBE.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;

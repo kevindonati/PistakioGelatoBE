@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import java.util.UUID;
 
 public record OrderItemDTO(
-        @NotNull(message = "The quantity is mandatory")
         @Min(value = 1, message = "The quantity can't be lower than 1")
         int quantity,
 

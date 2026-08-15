@@ -77,14 +77,23 @@ public class OrderService {
             throw new BadRequestException("Only carts can be checked out");
         }
 
+        List<OrderItem> orderItems = orderItemRepository.findByOrder(foundedOrder);
+
+        if (orderItems.isEmpty()) {
+            throw new BadRequestException("The order has no items");
+        }
+
         foundedOrder.setAddress(foundedAddress);
         foundedOrder.setNotes(payload.notes());
 
+        double total = 0;
+        for (OrderItem item : orderItems) {
+            total += item.getQuantity() * item.getUnitPrice();
+        }
+
         // TODO: calcolare il costo della spedizione
         foundedOrder.setShippingCost(6.00);
-
-        // TODO: ricalcolare il totale dagli OrderItem
-        foundedOrder.setTotal(foundedOrder.getTotal() + foundedOrder.getShippingCost());
+        foundedOrder.setTotal(total + foundedOrder.getShippingCost());
 
         foundedOrder.setOrderStatus(OrderStatus.PENDING_PAYMENT);
         foundedOrder.setUpdatedAt(LocalDateTime.now());

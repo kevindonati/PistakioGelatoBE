@@ -7,7 +7,6 @@ import kevindonati.PistakioGelatoBE.exceptions.NotFoundException;
 import kevindonati.PistakioGelatoBE.exceptions.UnauthorizedException;
 import kevindonati.PistakioGelatoBE.payloads.AddressDTO;
 import kevindonati.PistakioGelatoBE.repositories.AddressRepository;
-import kevindonati.PistakioGelatoBE.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
