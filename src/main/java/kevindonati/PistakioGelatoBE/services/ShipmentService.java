@@ -93,6 +93,7 @@ public class ShipmentService {
             foundedShipment.setStatus(ShipmentStatus.DELIVERED);
             foundedShipment.setDeliveredAt(LocalDate.now());
             orderService.deliverOrder(foundedShipment.getOrder().getId());
+            emailService.sendDeliveryEmail(foundedShipment);
         }
         return shipmentRepository.save(foundedShipment);
     }

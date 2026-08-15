@@ -62,4 +62,40 @@ public class EmailService {
         );
         mailSender.send(message);
     }
+
+    public void sendDeliveryEmail(Shipment shipment) {
+        SimpleMailMessage message = new SimpleMailMessage();
+
+        message.setFrom("kevindonati5@gmail.com");
+        message.setTo(shipment.getOrder().getUser().getEmail());
+        message.setSubject("Ordine consegnato - PistakioGelato");
+
+        message.setText(
+                "Ciao " + shipment.getOrder().getUser().getName() + "!\n" +
+                        "Il tuo ordine è stato consegnato!\n" +
+                        "Ordine: " + shipment.getOrder().getId() + "\n" +
+                        "Corriere: " + shipment.getCarrier() + "\n" +
+                        "Tracking number: " + shipment.getTrackingNumber() + "\n" +
+                        "Grazie per aver scelto PistakioGelato!"
+        );
+        mailSender.send(message);
+    }
+
+    public void sendCancellationEmail(Order order) {
+        SimpleMailMessage message = new SimpleMailMessage();
+
+        message.setFrom("kevindonati5@gmail.com");
+        message.setTo(order.getUser().getEmail());
+        message.setSubject("Ordine cancellato - PistakioGelato");
+
+        message.setText(
+                "Ciao " + order.getUser().getName() + "!\n" +
+                        "Il tuo ordine è stato cancellato.\n" +
+                        "Ordine: " + order.getId() + "\n" +
+                        "Totale: €" + order.getTotal() + "\n" +
+                        "Se non hai richiesto tu la cancellazione, contattaci.\n" +
+                        "PistakioGelato"
+        );
+        mailSender.send(message);
+    }
 }

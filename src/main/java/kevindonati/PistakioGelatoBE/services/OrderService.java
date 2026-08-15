@@ -37,6 +37,9 @@ public class OrderService {
     @Autowired
     private AddressService addressService;
 
+    @Autowired
+    private EmailService emailService;
+
     private User getAuthenticatedUser() {
         Authentication authentication =
                 SecurityContextHolder.getContext().getAuthentication();
@@ -135,7 +138,10 @@ public class OrderService {
 
         foundedOrder.setOrderStatus(OrderStatus.CANCELLED);
         foundedOrder.setUpdatedAt(LocalDateTime.now());
-        return orderRepository.save(foundedOrder);
+        Order order = orderRepository.save(foundedOrder);
+        emailService.sendCancellationEmail(order);
+
+        return order;
     }
 
     public Order saveOrder(Order order) {
