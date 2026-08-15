@@ -51,16 +51,13 @@ public class EmailService {
 
         message.setFrom("kevindonati5@gmail.com");
         message.setTo(shipment.getOrder().getUser().getEmail());
-        message.setSubject("Il tuo ordine è stato spedito - PistakioGelato");
-
-        message.setText(
-                "Ciao " + shipment.getOrder().getUser().getName() + "!\n" +
-                        "Il tuo ordine è stato spedito!\n" +
-                        "Ordine: " + shipment.getOrder().getId() + "\n" +
-                        "Corriere: " + shipment.getCarrier() + "\n" +
-                        "Tracking number: " + shipment.getTrackingNumber() + "\n" +
-                        "Grazie per aver scelto PistakioGelato!"
-        );
+        message.setSubject(getMessage("shipping.subject", shipment.getOrder().getUser().getLanguage()));
+        message.setText(getMessage("shipping.text",
+                shipment.getOrder().getUser().getLanguage(),
+                shipment.getOrder().getUser().getName(),
+                shipment.getOrder().getId(),
+                shipment.getCarrier(),
+                shipment.getTrackingNumber()));
         mailSender.send(message);
     }
 
