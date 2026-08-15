@@ -21,6 +21,9 @@ public class AuthService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
+    private EmailService emailService;
+
+    @Autowired
     private JWTTools jwtTools;
 
     public User register(UserDTO payload) {
@@ -38,7 +41,10 @@ public class AuthService {
                 hashedPassword,
                 payload.phone()
         );
-        return userRepository.save(newUser);
+        User savedUser = userRepository.save(newUser);
+        emailService.sendWelcomeEmail(savedUser);
+
+        return savedUser;
     }
 
     public LoginResponseDTO login(LoginDTO payload) {
