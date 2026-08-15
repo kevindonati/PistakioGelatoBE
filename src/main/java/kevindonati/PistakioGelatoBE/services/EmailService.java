@@ -84,16 +84,14 @@ public class EmailService {
 
         message.setFrom("kevindonati5@gmail.com");
         message.setTo(order.getUser().getEmail());
-        message.setSubject("Ordine cancellato - PistakioGelato");
-
-        message.setText(
-                "Ciao " + order.getUser().getName() + "!\n" +
-                        "Il tuo ordine è stato cancellato.\n" +
-                        "Ordine: " + order.getId() + "\n" +
-                        "Totale: €" + order.getTotal() + "\n" +
-                        "Se non hai richiesto tu la cancellazione, contattaci.\n" +
-                        "PistakioGelato"
-        );
+        message.setSubject(getMessage("cancellation.subject", order.getUser().getLanguage()));
+        message.setText(getMessage(
+                "cancellation.text",
+                order.getUser().getLanguage(),
+                order.getUser().getName(),
+                order.getId(),
+                order.getTotal()
+        ));
         mailSender.send(message);
     }
 }
