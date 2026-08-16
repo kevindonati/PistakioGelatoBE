@@ -1,7 +1,9 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
 import kevindonati.PistakioGelatoBE.entities.Flavor;
+import kevindonati.PistakioGelatoBE.enums.Language;
 import kevindonati.PistakioGelatoBE.payloads.FlavorDTO;
+import kevindonati.PistakioGelatoBE.payloads.FlavorDetailsDTO;
 import kevindonati.PistakioGelatoBE.payloads.FlavorResponseDTO;
 import kevindonati.PistakioGelatoBE.services.FlavorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,16 +23,19 @@ public class FlavorController {
     private FlavorService flavorService;
 
     @GetMapping
-    public Page<Flavor> findAll(@RequestParam(defaultValue = "0") int page,
-                                @RequestParam(defaultValue = "10") int size,
-                                @RequestParam(defaultValue = "name") String orderBy
+    public Page<FlavorDetailsDTO> findAll(@RequestParam(defaultValue = "0") int page,
+                                          @RequestParam(defaultValue = "10") int size,
+                                          @RequestParam(defaultValue = "referralCode") String orderBy,
+                                          @RequestParam(defaultValue = "EN") Language language
     ) {
-        return flavorService.findAll(page, size, orderBy);
+        return flavorService.findAll(page, size, orderBy, language);
     }
 
     @GetMapping("/{id}")
-    public Flavor findById(@PathVariable UUID id) {
-        return flavorService.findById(id);
+    public FlavorDetailsDTO findById(@PathVariable UUID id,
+                                     @RequestParam(defaultValue = "EN") Language language
+    ) {
+        return flavorService.findById(id, language);
     }
 
     @PostMapping

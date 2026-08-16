@@ -3,9 +3,12 @@ package kevindonati.PistakioGelatoBE.services;
 import kevindonati.PistakioGelatoBE.entities.Category;
 import kevindonati.PistakioGelatoBE.entities.Flavor;
 import kevindonati.PistakioGelatoBE.entities.FlavorTranslation;
+import kevindonati.PistakioGelatoBE.enums.Language;
 import kevindonati.PistakioGelatoBE.exceptions.BadRequestException;
 import kevindonati.PistakioGelatoBE.exceptions.NotFoundException;
 import kevindonati.PistakioGelatoBE.payloads.FlavorDTO;
+import kevindonati.PistakioGelatoBE.payloads.FlavorDetailsDTO;
+import kevindonati.PistakioGelatoBE.payloads.FlavorResponseDTO;
 import kevindonati.PistakioGelatoBE.payloads.FlavorTranslationDTO;
 import kevindonati.PistakioGelatoBE.repositories.CategoryRepository;
 import kevindonati.PistakioGelatoBE.repositories.FlavorRepository;
@@ -30,6 +33,26 @@ public class FlavorService {
 
     @Autowired
     private FlavorTranslationRepository flavorTranslationRepository;
+
+    private FlavorDetailsDTO toDetailsDTO(Flavor flavor, Language language) {
+        FlavorTranslation translation = flavorTranslationRepository.findByFlavorAndLanguage(flavor, language)
+                .orElseThrow(() -> new NotFoundException("Translation not found for flavor " + flavor.getId() + " and language " + language));
+
+        return new FlavorDetailsDTO(
+                flavor.getId(),
+                translation.getName(),
+                translation.getDescription(),
+                flavor.getReferralCode(),
+                flavor.getImage(),
+                flavor.getStockPortions(),
+                flavor.isAvailable(),
+                flavor.isVegan(),
+                flavor.isLactoseFree(),
+                flavor.isGlutenFree(),
+                flavor.isSugarFree(),
+                flavor.getCategory().getId()
+        );
+    }
 
     public Flavor save(FlavorDTO payload) {
         Category foundedCategory = categoryRepository.findById(payload.category()).orElseThrow(() -> new NotFoundException("Category with id " + payload.category() + " not found"));
@@ -64,20 +87,26 @@ public class FlavorService {
         return savedFlavor;
     }
 
-    public Page<Flavor> findAll(int page, int size, String orderBy) {
+    public Page<FlavorDetailsDTO> findAll(int page, int size, String orderBy, Language language) {
         if (size > 50) size = 50;
         if (size < 1) size = 10;
         if (page < 0) page = 0;
+
         Pageable pageable = PageRequest.of(page, size, Sort.by(orderBy));
-        return flavorRepository.findAll(pageable);
+        return flavorRepository.findAll(pageable).map(flavor -> toDetailsDTO(flavor, language));
     }
 
-    public Flavor findById(UUID id) {
+    public FlavorDetailsDTO findById(UUID id, Language language) {
+        Flavor flavor = flavorRepository.findById(id).orElseThrow(() -> new NotFoundException("Flavor with id " + id + " not found"));
+        return toDetailsDTO(flavor, language);
+    }
+
+    public Flavor findFlavorEntityById(UUID id) {
         return flavorRepository.findById(id).orElseThrow(() -> new NotFoundException("Flavor with id " + id + " not found"));
     }
 
     public Flavor findByIdAndUpdate(UUID id, FlavorDTO payload) {
-        Flavor foundedFlavor = this.findById(id);
+        Flavor foundedFlavor = this.findFlavorEntityById(id);
 
         Category foundedCategory = categoryRepository.findById(payload.category()).orElseThrow(() -> new NotFoundException("Category with id " + payload.category() + " not found"));
 
@@ -117,7 +146,7 @@ public class FlavorService {
     }
 
     public void findByIdAndDelete(UUID id) {
-        Flavor foundedFlavor = this.findById(id);
+        Flavor foundedFlavor = this.findFlavorEntityById(id);
         flavorRepository.delete(foundedFlavor);
     }
 

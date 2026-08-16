@@ -53,7 +53,7 @@ public class OrderItemService {
             throw new BadRequestException("You can only modify a cart");
         }
 
-        Flavor foundedFlavor = flavorService.findById(payload.flavor());
+        Flavor foundedFlavor = flavorService.findFlavorEntityById(payload.flavor());
         Tub foundedTub = tubService.findById(payload.tub());
 
         if (!foundedTub.isAvailable()) {
