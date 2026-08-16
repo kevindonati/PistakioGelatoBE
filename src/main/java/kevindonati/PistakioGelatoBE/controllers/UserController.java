@@ -29,6 +29,22 @@ public class UserController {
         return userService.findAll(page, size, orderBy);
     }
 
+    @GetMapping("/me")
+    public UserResponseDTO getMe() {
+        User user = userService.getMe();
+
+        return new UserResponseDTO(
+                user.getId(),
+                user.getName(),
+                user.getSurname(),
+                user.getEmail(),
+                user.getPhone(),
+                user.getRole(),
+                user.isEnabled(),
+                user.getLanguage()
+        );
+    }
+
     @GetMapping("/{id}")
     public User findById(@PathVariable UUID id) {
         return userService.findById(id);
@@ -46,4 +62,6 @@ public class UserController {
     public void delete(@PathVariable UUID id) {
         userService.findByIdAndDelete(id);
     }
+
+
 }

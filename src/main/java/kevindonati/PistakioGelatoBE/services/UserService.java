@@ -69,4 +69,8 @@ public class UserService {
 
         userRepository.delete(foundedUser);
     }
+
+    public User getMe() {
+        return getAuthenticatedUser();
+    }
 }
