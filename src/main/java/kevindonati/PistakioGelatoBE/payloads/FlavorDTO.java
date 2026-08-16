@@ -2,16 +2,13 @@ package kevindonati.PistakioGelatoBE.payloads;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.List;
 import java.util.UUID;
 
 public record FlavorDTO(
-        @NotBlank(message = "The name of the flavor is mandatory")
-        String name,
-
-        String description,
-
         @NotBlank(message = "The referral  code for the flavor is mandatory")
         String referralCode,
 
@@ -32,6 +29,9 @@ public record FlavorDTO(
         boolean sugarFree,
 
         @NotNull(message = "The category is mandatory")
-        UUID category
+        UUID category,
+
+        @NotEmpty(message = "At least one translation is required")
+        List<FlavorTranslationDTO> translations
 ) {
 }

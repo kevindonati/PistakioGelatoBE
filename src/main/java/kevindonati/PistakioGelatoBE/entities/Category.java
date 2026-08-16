@@ -19,16 +19,9 @@ public class Category {
     @Setter(AccessLevel.NONE)
     private UUID id;
 
-    @Column(nullable = false, unique = true)
-    private String name;
-
-    private String description;
-
     private String image;
 
-    public Category(String name, String description, String image) {
-        this.name = name;
-        this.description = description;
+    public Category(String image) {
         this.image = image;
     }
 }

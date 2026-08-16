@@ -2,11 +2,14 @@ package kevindonati.PistakioGelatoBE.services;
 
 import kevindonati.PistakioGelatoBE.entities.Category;
 import kevindonati.PistakioGelatoBE.entities.Flavor;
+import kevindonati.PistakioGelatoBE.entities.FlavorTranslation;
 import kevindonati.PistakioGelatoBE.exceptions.BadRequestException;
 import kevindonati.PistakioGelatoBE.exceptions.NotFoundException;
 import kevindonati.PistakioGelatoBE.payloads.FlavorDTO;
+import kevindonati.PistakioGelatoBE.payloads.FlavorTranslationDTO;
 import kevindonati.PistakioGelatoBE.repositories.CategoryRepository;
 import kevindonati.PistakioGelatoBE.repositories.FlavorRepository;
+import kevindonati.PistakioGelatoBE.repositories.FlavorTranslationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,17 +24,17 @@ import java.util.UUID;
 public class FlavorService {
     @Autowired
     private FlavorRepository flavorRepository;
+
     @Autowired
     private CategoryRepository categoryRepository;
 
-    public Flavor save(FlavorDTO payload) {
-        if (flavorRepository.existsByName(payload.name())) {
-            throw new BadRequestException("The flavor with the name " + payload.name() + " is already existing");
-        }
+    @Autowired
+    private FlavorTranslationRepository flavorTranslationRepository;
 
+    public Flavor save(FlavorDTO payload) {
         Category foundedCategory = categoryRepository.findById(payload.category()).orElseThrow(() -> new NotFoundException("Category with id " + payload.category() + " not found"));
-        Flavor newFlavor = new Flavor(payload.name(),
-                payload.description(),
+
+        Flavor newFlavor = new Flavor(
                 payload.referralCode(),
                 payload.image(),
                 payload.stockPortions(),
@@ -42,7 +45,23 @@ public class FlavorService {
                 payload.sugarFree(),
                 foundedCategory);
 
-        return flavorRepository.save(newFlavor);
+        Flavor savedFlavor = flavorRepository.save(newFlavor);
+
+        for (FlavorTranslationDTO translation : payload.translations()) {
+            if (flavorTranslationRepository.existsByFlavorAndLanguage(savedFlavor, translation.language())) {
+                throw new BadRequestException("A translation for language " + translation.language() + " already exists");
+            }
+
+            FlavorTranslation newTranslation =
+                    new FlavorTranslation(
+                            translation.language(),
+                            translation.name(),
+                            translation.description(),
+                            savedFlavor
+                    );
+            flavorTranslationRepository.save(newTranslation);
+        }
+        return savedFlavor;
     }
 
     public Page<Flavor> findAll(int page, int size, String orderBy) {
@@ -59,14 +78,9 @@ public class FlavorService {
 
     public Flavor findByIdAndUpdate(UUID id, FlavorDTO payload) {
         Flavor foundedFlavor = this.findById(id);
-        if (!foundedFlavor.getName().equals(payload.name()) && flavorRepository.existsByName(payload.name())) {
-            throw new BadRequestException("This flavor name is already registered");
-        }
 
         Category foundedCategory = categoryRepository.findById(payload.category()).orElseThrow(() -> new NotFoundException("Category with id " + payload.category() + " not found"));
 
-        foundedFlavor.setName(payload.name());
-        foundedFlavor.setDescription(payload.description());
         foundedFlavor.setReferralCode(payload.referralCode());
         foundedFlavor.setImage(payload.image());
         foundedFlavor.setStockPortions(payload.stockPortions());
@@ -77,7 +91,29 @@ public class FlavorService {
         foundedFlavor.setSugarFree(payload.sugarFree());
         foundedFlavor.setCategory(foundedCategory);
 
-        return flavorRepository.save(foundedFlavor);
+        Flavor savedFlavor =
+                flavorRepository.save(foundedFlavor);
+
+        for (FlavorTranslationDTO translation : payload.translations()) {
+            FlavorTranslation existingTranslation = flavorTranslationRepository.findByFlavorAndLanguage(savedFlavor, translation.language()).orElse(null);
+
+            if (existingTranslation != null) {
+                existingTranslation.setName(translation.name());
+                existingTranslation.setDescription(translation.description());
+
+                flavorTranslationRepository.save(existingTranslation);
+            } else {
+                FlavorTranslation newTranslation =
+                        new FlavorTranslation(
+                                translation.language(),
+                                translation.name(),
+                                translation.description(),
+                                savedFlavor
+                        );
+                flavorTranslationRepository.save(newTranslation);
+            }
+        }
+        return savedFlavor;
     }
 
     public void findByIdAndDelete(UUID id) {

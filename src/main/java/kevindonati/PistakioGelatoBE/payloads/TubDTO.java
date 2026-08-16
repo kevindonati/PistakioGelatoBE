@@ -5,11 +5,9 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record TubDTO(
-        @NotBlank(message = "The name is mandatory")
-        String name,
+import java.util.List;
 
-        String description,
+public record TubDTO(
 
         @NotNull(message = "The weight is mandatory")
         @Min(value = 1, message = "The weight must be greater than 0")
@@ -22,6 +20,9 @@ public record TubDTO(
         String image,
 
         @NotNull(message = "The availability is mandatory")
-        Boolean available
+        Boolean available,
+
+        @NotNull(message = "Translations are mandatory")
+        List<TubTranslationDTO> translations
 ) {
 }

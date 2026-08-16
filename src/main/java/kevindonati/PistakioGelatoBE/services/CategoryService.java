@@ -1,10 +1,13 @@
 package kevindonati.PistakioGelatoBE.services;
 
 import kevindonati.PistakioGelatoBE.entities.Category;
+import kevindonati.PistakioGelatoBE.entities.CategoryTranslation;
 import kevindonati.PistakioGelatoBE.exceptions.BadRequestException;
 import kevindonati.PistakioGelatoBE.exceptions.NotFoundException;
 import kevindonati.PistakioGelatoBE.payloads.CategoryDTO;
+import kevindonati.PistakioGelatoBE.payloads.CategoryTranslationDTO;
 import kevindonati.PistakioGelatoBE.repositories.CategoryRepository;
+import kevindonati.PistakioGelatoBE.repositories.CategoryTranslationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,13 +22,23 @@ public class CategoryService {
     @Autowired
     private CategoryRepository categoryRepository;
 
-    public Category save(CategoryDTO payload) {
-        if (categoryRepository.existsByName(payload.name())) {
-            throw new BadRequestException("The category with the name " + payload.name() + " is already existing");
-        }
+    @Autowired
+    private CategoryTranslationRepository categoryTranslationRepository;
 
-        Category newCategory = new Category(payload.name(), payload.description(), payload.image());
-        return categoryRepository.save(newCategory);
+    public Category save(CategoryDTO payload) {
+        Category newCategory = new Category(payload.image());
+        Category savedCategory = categoryRepository.save(newCategory);
+
+        for (CategoryTranslationDTO translation : payload.translations()) {
+            CategoryTranslation newTranslation = new CategoryTranslation(
+                    translation.language(),
+                    translation.name(),
+                    translation.description(),
+                    savedCategory
+            );
+            categoryTranslationRepository.save(newTranslation);
+        }
+        return savedCategory;
     }
 
     public Page<Category> findAll(int page, int size, String orderBy) {
@@ -44,14 +57,29 @@ public class CategoryService {
     public Category findByIdAndUpdate(UUID id, CategoryDTO payload) {
         Category foundedCategory = this.findById(id);
 
-        if (!foundedCategory.getName().equals(payload.name()) && categoryRepository.existsByName(payload.name())) {
-            throw new BadRequestException("This category name is already registered");
-        }
-
-        foundedCategory.setName(payload.name());
-        foundedCategory.setDescription(payload.description());
         foundedCategory.setImage(payload.image());
-        return categoryRepository.save(foundedCategory);
+
+        Category savedCategory = categoryRepository.save(foundedCategory);
+        for (CategoryTranslationDTO translation : payload.translations()) {
+            CategoryTranslation existingTranslation = categoryTranslationRepository.findByCategoryAndLanguage(savedCategory, translation.language()).orElse(null);
+
+            if (existingTranslation != null) {
+                existingTranslation.setName(translation.name());
+                existingTranslation.setDescription(translation.description());
+
+                categoryTranslationRepository.save(existingTranslation);
+            } else {
+                CategoryTranslation newTranslation = new CategoryTranslation(
+                        translation.language(),
+                        translation.name(),
+                        translation.description(),
+                        savedCategory
+                );
+
+                categoryTranslationRepository.save(newTranslation);
+            }
+        }
+        return savedCategory;
     }
 
     public void findByIdAndDelete(UUID id) {

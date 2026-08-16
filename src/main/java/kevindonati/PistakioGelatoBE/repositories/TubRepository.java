@@ -8,6 +8,4 @@ import java.util.UUID;
 
 @Repository
 public interface TubRepository extends JpaRepository<Tub, UUID> {
-    boolean existsByName(String name);
-
 }

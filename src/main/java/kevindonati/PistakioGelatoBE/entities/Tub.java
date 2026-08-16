@@ -19,11 +19,6 @@ public class Tub {
     @Setter(AccessLevel.NONE)
     private UUID id;
 
-    @Column(nullable = false, unique = true)
-    private String name;
-
-    private String description;
-
     @Column(nullable = false)
     private int weight;
 
@@ -35,9 +30,7 @@ public class Tub {
     @Column(nullable = false)
     private boolean available;
 
-    public Tub(String name, String description, int weight, double price, String image, boolean available) {
-        this.name = name;
-        this.description = description;
+    public Tub(int weight, double price, String image, boolean available) {
         this.weight = weight;
         this.price = price;
         this.image = image;

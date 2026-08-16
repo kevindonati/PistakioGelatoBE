@@ -195,7 +195,7 @@ public class OrderService {
             int newStock = flavor.getStockPortions() - item.getQuantity();
 
             if (newStock < 0) {
-                throw new BadRequestException("Not enough stock for flavor " + flavor.getName());
+                throw new BadRequestException("Not enough stock for flavor " + flavor.getId());
             }
 
             flavor.setStockPortions(newStock);

@@ -1,10 +1,13 @@
 package kevindonati.PistakioGelatoBE.services;
 
 import kevindonati.PistakioGelatoBE.entities.Tub;
+import kevindonati.PistakioGelatoBE.entities.TubTranslation;
 import kevindonati.PistakioGelatoBE.exceptions.BadRequestException;
 import kevindonati.PistakioGelatoBE.exceptions.NotFoundException;
 import kevindonati.PistakioGelatoBE.payloads.TubDTO;
+import kevindonati.PistakioGelatoBE.payloads.TubTranslationDTO;
 import kevindonati.PistakioGelatoBE.repositories.TubRepository;
+import kevindonati.PistakioGelatoBE.repositories.TubTranslationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -19,20 +22,30 @@ public class TubService {
     @Autowired
     private TubRepository tubRepository;
 
+    @Autowired
+    private TubTranslationRepository tubTranslationRepository;
+
     public Tub save(TubDTO payload) {
-        if (tubRepository.existsByName(payload.name())) {
-            throw new BadRequestException("The tub with the name " + payload.name() + " already exists");
-        }
 
         Tub newTub = new Tub(
-                payload.name(),
-                payload.description(),
                 payload.weight(),
                 payload.price(),
                 payload.image(),
                 payload.available()
         );
-        return tubRepository.save(newTub);
+        Tub savedTub = tubRepository.save(newTub);
+
+        for (TubTranslationDTO translation : payload.translations()) {
+            TubTranslation newTranslation =
+                    new TubTranslation(
+                            translation.language(),
+                            translation.name(),
+                            translation.description(),
+                            savedTub
+                    );
+            tubTranslationRepository.save(newTranslation);
+        }
+        return savedTub;
     }
 
     public Page<Tub> findAll(int page, int size, String orderBy) {
@@ -51,18 +64,32 @@ public class TubService {
     public Tub findByIdAndUpdate(UUID id, TubDTO payload) {
         Tub foundedTub = this.findById(id);
 
-        if (!foundedTub.getName().equals(payload.name()) && tubRepository.existsByName(payload.name())) {
-            throw new BadRequestException("This tub name is already registered");
-        }
-
-        foundedTub.setName(payload.name());
-        foundedTub.setDescription(payload.description());
         foundedTub.setWeight(payload.weight());
         foundedTub.setPrice(payload.price());
         foundedTub.setImage(payload.image());
         foundedTub.setAvailable(payload.available());
 
-        return tubRepository.save(foundedTub);
+        Tub savedTub = tubRepository.save(foundedTub);
+
+        for (TubTranslationDTO translation : payload.translations()) {
+            TubTranslation existingTranslation = tubTranslationRepository.findByTubAndLanguage(savedTub, translation.language()).orElse(null);
+
+            if (existingTranslation != null) {
+                existingTranslation.setName(translation.name());
+                existingTranslation.setDescription(translation.description());
+
+                tubTranslationRepository.save(existingTranslation);
+            } else {
+                TubTranslation newTranslation = new TubTranslation(
+                        translation.language(),
+                        translation.name(),
+                        translation.description(),
+                        savedTub
+                );
+                tubTranslationRepository.save(newTranslation);
+            }
+        }
+        return savedTub;
     }
 
     public void findByIdAndDelete(UUID id) {

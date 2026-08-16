@@ -4,15 +4,16 @@ import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
-import kevindonati.PistakioGelatoBE.entities.Order;
-import kevindonati.PistakioGelatoBE.entities.OrderItem;
-import kevindonati.PistakioGelatoBE.entities.Payment;
+import kevindonati.PistakioGelatoBE.entities.*;
+import kevindonati.PistakioGelatoBE.enums.Language;
 import kevindonati.PistakioGelatoBE.enums.OrderStatus;
 import kevindonati.PistakioGelatoBE.enums.PaymentStatus;
 import kevindonati.PistakioGelatoBE.enums.ProviderType;
 import kevindonati.PistakioGelatoBE.exceptions.BadRequestException;
+import kevindonati.PistakioGelatoBE.repositories.FlavorTranslationRepository;
 import kevindonati.PistakioGelatoBE.repositories.OrderItemRepository;
 import kevindonati.PistakioGelatoBE.repositories.PaymentRepository;
+import kevindonati.PistakioGelatoBE.repositories.TubTranslationRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -24,13 +25,17 @@ public class StripeService {
     private final OrderItemRepository orderItemRepository;
     private final String successUrl;
     private final String cancelUrl;
+    private final FlavorTranslationRepository flavorTranslationRepository;
+    private final TubTranslationRepository tubTranslationRepository;
 
-    public StripeService(OrderItemRepository orderItemRepository, PaymentRepository paymentRepository, @Value("${stripe.secret-key}") String secretKey, @Value("${stripe.success-url}") String successUrl, @Value("${stripe.cancel-url}") String cancelUrl) {
+    public StripeService(OrderItemRepository orderItemRepository, PaymentRepository paymentRepository, @Value("${stripe.secret-key}") String secretKey, @Value("${stripe.success-url}") String successUrl, @Value("${stripe.cancel-url}") String cancelUrl, FlavorTranslationRepository flavorTranslationRepository, TubTranslationRepository tubTranslationRepository) {
         this.orderItemRepository = orderItemRepository;
         this.paymentRepository = paymentRepository;
         this.successUrl = successUrl;
         this.cancelUrl = cancelUrl;
         Stripe.apiKey = secretKey;
+        this.flavorTranslationRepository = flavorTranslationRepository;
+        this.tubTranslationRepository = tubTranslationRepository;
     }
 
     public String createCheckoutSession(Order order) {
@@ -64,8 +69,16 @@ public class StripeService {
                                     order.getId().toString()
                             );
 
+            Language language = order.getUser().getLanguage();
             for (OrderItem item : orderItems) {
-                String productName = item.getFlavor().getName() + " - " + item.getTub().getName();
+
+                FlavorTranslation flavorTranslation = flavorTranslationRepository.findByFlavorAndLanguage(item.getFlavor(), language)
+                                .orElseThrow(() -> new BadRequestException("Flavor translation not found for language " + language));
+
+                TubTranslation tubTranslation = tubTranslationRepository.findByTubAndLanguage(item.getTub(), language)
+                                .orElseThrow(() -> new BadRequestException("Tub translation not found for language " + language));
+
+                String productName = flavorTranslation.getName() + " - " + tubTranslation.getName();
 
                 SessionCreateParams.LineItem lineItem =
                         SessionCreateParams.LineItem.builder()

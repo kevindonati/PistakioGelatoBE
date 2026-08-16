@@ -1,13 +1,14 @@
 package kevindonati.PistakioGelatoBE.payloads;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+
+import java.util.List;
 
 public record CategoryDTO(
-        @NotBlank(message = "The name of the category is mandatory")
-        String name,
+        String image,
 
-        String description,
+        @NotNull(message = "Translations are mandatory")
+        List<CategoryTranslationDTO> translations
 
-        String image
 ) {
 }

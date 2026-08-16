@@ -19,11 +19,6 @@ public class Flavor {
     @Setter(AccessLevel.NONE)
     private UUID id;
 
-    @Column(nullable = false, unique = true)
-    private String name;
-
-    private String description;
-
     @Column(nullable = false, unique = true, name = "referral_code")
     private String referralCode;
 
@@ -51,9 +46,7 @@ public class Flavor {
     @JoinColumn(name = "id_category", nullable = false)
     private Category category;
 
-    public Flavor(String name, String description, String referralCode, String image, int stockPortions, boolean available, boolean vegan, boolean lactoseFree, boolean glutenFree, boolean sugarFree, Category category) {
-        this.name = name;
-        this.description = description;
+    public Flavor(String referralCode, String image, int stockPortions, boolean available, boolean vegan, boolean lactoseFree, boolean glutenFree, boolean sugarFree, Category category) {
         this.referralCode = referralCode;
         this.image = image;
         this.stockPortions = stockPortions;
