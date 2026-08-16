@@ -1,7 +1,9 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
 import kevindonati.PistakioGelatoBE.entities.Category;
+import kevindonati.PistakioGelatoBE.enums.Language;
 import kevindonati.PistakioGelatoBE.payloads.CategoryDTO;
+import kevindonati.PistakioGelatoBE.payloads.CategoryDetailsDTO;
 import kevindonati.PistakioGelatoBE.payloads.CategoryResponseDTO;
 import kevindonati.PistakioGelatoBE.services.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,16 +22,24 @@ public class CategoryController {
     private CategoryService categoryService;
 
     @GetMapping
-    public Page<Category> findAll(@RequestParam(defaultValue = "0") int page,
-                                  @RequestParam(defaultValue = "10") int size,
-                                  @RequestParam(defaultValue = "name") String orderBy
+    public Page<CategoryDetailsDTO> findAll(@RequestParam(defaultValue = "0") int page,
+                                            @RequestParam(defaultValue = "10") int size,
+                                            @RequestParam(defaultValue = "image") String orderBy,
+                                            @RequestParam(defaultValue = "EN") Language language
     ) {
-        return categoryService.findAll(page, size, orderBy);
+        return categoryService.findAll(
+                page,
+                size,
+                orderBy,
+                language
+        );
     }
 
     @GetMapping("/{id}")
-    public Category findById(@PathVariable UUID id) {
-        return categoryService.findById(id);
+    public CategoryDetailsDTO findById(@PathVariable UUID id,
+                                       @RequestParam(defaultValue = "EN") Language language
+    ) {
+        return categoryService.findById(id, language);
     }
 
     @PostMapping
