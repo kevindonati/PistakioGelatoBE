@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -27,12 +28,19 @@ public class TubService {
     @Autowired
     private TubTranslationRepository tubTranslationRepository;
 
-    public Tub save(TubDTO payload) {
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
+    public Tub save(TubDTO payload, MultipartFile file) {
+        String imageUrl = null;
+        if (file != null && !file.isEmpty()) {
+            imageUrl = cloudinaryService.uploadImage(file);
+        }
 
         Tub newTub = new Tub(
                 payload.weight(),
                 payload.price(),
-                payload.image(),
+                imageUrl,
                 payload.available()
         );
         Tub savedTub = tubRepository.save(newTub);
@@ -92,13 +100,17 @@ public class TubService {
         );
     }
 
-    public Tub findByIdAndUpdate(UUID id, TubDTO payload) {
+    public Tub findByIdAndUpdate(UUID id, TubDTO payload, MultipartFile file) {
         Tub foundedTub = this.findById(id);
 
         foundedTub.setWeight(payload.weight());
         foundedTub.setPrice(payload.price());
-        foundedTub.setImage(payload.image());
         foundedTub.setAvailable(payload.available());
+
+        if (file != null && !file.isEmpty()) {
+            String imageUrl = cloudinaryService.uploadImage(file);
+            foundedTub.setImage(imageUrl);
+        }
 
         Tub savedTub = tubRepository.save(foundedTub);
 

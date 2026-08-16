@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
@@ -39,18 +40,23 @@ public class TubController {
         return tubService.findById(id, language);
     }
 
-    @PostMapping
+    @PostMapping(consumes = "multipart/form-data")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
-    public TubResponseDTO save(@RequestBody @Validated TubDTO payload) {
-        Tub savedTub = tubService.save(payload);
+    public TubResponseDTO save(
+            @RequestPart("data") @Validated TubDTO payload,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+        Tub savedTub = tubService.save(payload, file);
         return new TubResponseDTO(savedTub.getId());
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = "multipart/form-data")
     @PreAuthorize("hasRole('ADMIN')")
-    public Tub findByIdAndUpdate(@PathVariable UUID id, @RequestBody @Validated TubDTO payload) {
-        return tubService.findByIdAndUpdate(id, payload);
+    public Tub findByIdAndUpdate(
+            @PathVariable UUID id,
+            @RequestPart("data") @Validated TubDTO payload,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+        return tubService.findByIdAndUpdate(id, payload, file);
     }
 
     @DeleteMapping("/{id}")

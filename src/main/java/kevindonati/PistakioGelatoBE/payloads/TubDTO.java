@@ -17,8 +17,6 @@ public record TubDTO(
         @DecimalMin(value = "0.00", inclusive = false, message = "The price must be greater than 0")
         double price,
 
-        String image,
-
         @NotNull(message = "The availability is mandatory")
         Boolean available,
 
