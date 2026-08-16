@@ -12,8 +12,6 @@ public record FlavorDTO(
         @NotBlank(message = "The referral  code for the flavor is mandatory")
         String referralCode,
 
-        String image,
-
         @NotNull(message = "The stock quantity for the flavor is mandatory")
         @Min(value = 0, message = "The stoch can't be lower than 0")
         int stockPortions,

@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -63,18 +64,23 @@ public class FlavorController {
         return flavorService.findById(id, language);
     }
 
-    @PostMapping
+    @PostMapping(consumes = "multipart/form-data")
     @ResponseStatus(HttpStatus.CREATED)
     @PreAuthorize("hasRole('ADMIN')")
-    public FlavorResponseDTO save(@RequestBody @Validated FlavorDTO payload) {
-        Flavor savedFlavor = flavorService.save(payload);
+    public FlavorResponseDTO save(
+            @RequestPart("data") @Validated FlavorDTO payload,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+        Flavor savedFlavor = flavorService.save(payload, file);
         return new FlavorResponseDTO(savedFlavor.getId());
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = "multipart/form-data")
     @PreAuthorize("hasRole('ADMIN')")
-    public Flavor findByIdAndUpdate(@PathVariable UUID id, @RequestBody @Validated FlavorDTO payload) {
-        return flavorService.findByIdAndUpdate(id, payload);
+    public Flavor findByIdAndUpdate(
+            @PathVariable UUID id,
+            @RequestPart("data") @Validated FlavorDTO payload,
+            @RequestPart(value = "file", required = false) MultipartFile file) {
+        return flavorService.findByIdAndUpdate(id, payload, file);
     }
 
     @DeleteMapping("/{id}")

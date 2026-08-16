@@ -19,6 +19,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.UUID;
@@ -33,6 +34,9 @@ public class FlavorService {
 
     @Autowired
     private FlavorTranslationRepository flavorTranslationRepository;
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     private FlavorDetailsDTO toDetailsDTO(Flavor flavor, Language language) {
         FlavorTranslation translation = flavorTranslationRepository.findByFlavorAndLanguage(flavor, language)
@@ -54,12 +58,17 @@ public class FlavorService {
         );
     }
 
-    public Flavor save(FlavorDTO payload) {
+    public Flavor save(FlavorDTO payload, MultipartFile file) {
         Category foundedCategory = categoryRepository.findById(payload.category()).orElseThrow(() -> new NotFoundException("Category with id " + payload.category() + " not found"));
+
+        String imageUrl = null;
+        if (file != null && !file.isEmpty()) {
+            imageUrl = cloudinaryService.uploadImage(file);
+        }
 
         Flavor newFlavor = new Flavor(
                 payload.referralCode(),
-                payload.image(),
+                imageUrl,
                 payload.stockPortions(),
                 payload.available(),
                 payload.vegan(),
@@ -105,13 +114,16 @@ public class FlavorService {
         return flavorRepository.findById(id).orElseThrow(() -> new NotFoundException("Flavor with id " + id + " not found"));
     }
 
-    public Flavor findByIdAndUpdate(UUID id, FlavorDTO payload) {
+    public Flavor findByIdAndUpdate(UUID id, FlavorDTO payload, MultipartFile file) {
         Flavor foundedFlavor = this.findFlavorEntityById(id);
 
         Category foundedCategory = categoryRepository.findById(payload.category()).orElseThrow(() -> new NotFoundException("Category with id " + payload.category() + " not found"));
 
         foundedFlavor.setReferralCode(payload.referralCode());
-        foundedFlavor.setImage(payload.image());
+        if (file != null && !file.isEmpty()) {
+            String imageUrl = cloudinaryService.uploadImage(file);
+            foundedFlavor.setImage(imageUrl);
+        }
         foundedFlavor.setStockPortions(payload.stockPortions());
         foundedFlavor.setAvailable(payload.available());
         foundedFlavor.setVegan(payload.vegan());
