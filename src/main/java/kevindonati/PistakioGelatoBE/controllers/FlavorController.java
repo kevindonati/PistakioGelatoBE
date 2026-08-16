@@ -22,6 +22,31 @@ public class FlavorController {
     @Autowired
     private FlavorService flavorService;
 
+    @GetMapping("/available")
+    public List<FlavorDetailsDTO> findAvailable(@RequestParam(defaultValue = "EN") Language language) {
+        return flavorService.findAvailable(language);
+    }
+
+    @GetMapping("/vegan")
+    public List<FlavorDetailsDTO> findVegan(@RequestParam(defaultValue = "EN") Language language) {
+        return flavorService.findVegan(language);
+    }
+
+    @GetMapping("/gluten-free")
+    public List<FlavorDetailsDTO> findGlutenFree(@RequestParam(defaultValue = "EN") Language language) {
+        return flavorService.findGlutenFree(language);
+    }
+
+    @GetMapping("/lactose-free")
+    public List<FlavorDetailsDTO> findLactoseFree(@RequestParam(defaultValue = "EN") Language language) {
+        return flavorService.findLactoseFree(language);
+    }
+
+    @GetMapping("/sugar-free")
+    public List<FlavorDetailsDTO> findSugarFree(@RequestParam(defaultValue = "EN") Language language) {
+        return flavorService.findSugarFree(language);
+    }
+
     @GetMapping
     public Page<FlavorDetailsDTO> findAll(@RequestParam(defaultValue = "0") int page,
                                           @RequestParam(defaultValue = "10") int size,
@@ -57,30 +82,5 @@ public class FlavorController {
     @PreAuthorize("hasRole('ADMIN')")
     public void findByIdAndDelete(@PathVariable UUID id) {
         flavorService.findByIdAndDelete(id);
-    }
-
-    @GetMapping("/available")
-    public List<Flavor> findAvailable() {
-        return flavorService.findAvailable();
-    }
-
-    @GetMapping("/vegan")
-    public List<Flavor> findVegan() {
-        return flavorService.findVegan();
-    }
-
-    @GetMapping("/gluten-free")
-    public List<Flavor> findGlutenFree() {
-        return flavorService.findGlutenFree();
-    }
-
-    @GetMapping("/lactose-free")
-    public List<Flavor> findLactoseFree() {
-        return flavorService.findLactoseFree();
-    }
-
-    @GetMapping("/sugar-free")
-    public List<Flavor> findSugarFree() {
-        return flavorService.findSugarFree();
     }
 }

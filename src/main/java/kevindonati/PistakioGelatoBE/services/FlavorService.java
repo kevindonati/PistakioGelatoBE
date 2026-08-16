@@ -150,23 +150,38 @@ public class FlavorService {
         flavorRepository.delete(foundedFlavor);
     }
 
-    public List<Flavor> findAvailable() {
-        return flavorRepository.findByAvailableTrue();
+    public List<FlavorDetailsDTO> findAvailable(Language language) {
+        return flavorRepository.findByAvailableTrue()
+                .stream()
+                .map(flavor -> toDetailsDTO(flavor, language))
+                .toList();
     }
 
-    public List<Flavor> findVegan() {
-        return flavorRepository.findByVeganTrue();
+    public List<FlavorDetailsDTO> findVegan(Language language) {
+        return flavorRepository.findByVeganTrue()
+                .stream()
+                .map(flavor -> toDetailsDTO(flavor, language))
+                .toList();
     }
 
-    public List<Flavor> findGlutenFree() {
-        return flavorRepository.findByGlutenFreeTrue();
+    public List<FlavorDetailsDTO> findGlutenFree(Language language) {
+        return flavorRepository.findByGlutenFreeTrue()
+                .stream()
+                .map(flavor -> toDetailsDTO(flavor, language))
+                .toList();
     }
 
-    public List<Flavor> findLactoseFree() {
-        return flavorRepository.findByLactoseFreeTrue();
+    public List<FlavorDetailsDTO> findLactoseFree(Language language) {
+        return flavorRepository.findByLactoseFreeTrue()
+                .stream()
+                .map(flavor -> toDetailsDTO(flavor, language))
+                .toList();
     }
 
-    public List<Flavor> findSugarFree() {
-        return flavorRepository.findBySugarFreeTrue();
+    public List<FlavorDetailsDTO> findSugarFree(Language language) {
+        return flavorRepository.findBySugarFreeTrue()
+                .stream()
+                .map(flavor -> toDetailsDTO(flavor, language))
+                .toList();
     }
 }
