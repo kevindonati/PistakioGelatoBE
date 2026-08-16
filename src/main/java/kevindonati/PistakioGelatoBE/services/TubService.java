@@ -2,9 +2,11 @@ package kevindonati.PistakioGelatoBE.services;
 
 import kevindonati.PistakioGelatoBE.entities.Tub;
 import kevindonati.PistakioGelatoBE.entities.TubTranslation;
+import kevindonati.PistakioGelatoBE.enums.Language;
 import kevindonati.PistakioGelatoBE.exceptions.BadRequestException;
 import kevindonati.PistakioGelatoBE.exceptions.NotFoundException;
 import kevindonati.PistakioGelatoBE.payloads.TubDTO;
+import kevindonati.PistakioGelatoBE.payloads.TubDetailsDTO;
 import kevindonati.PistakioGelatoBE.payloads.TubTranslationDTO;
 import kevindonati.PistakioGelatoBE.repositories.TubRepository;
 import kevindonati.PistakioGelatoBE.repositories.TubTranslationRepository;
@@ -48,17 +50,46 @@ public class TubService {
         return savedTub;
     }
 
-    public Page<Tub> findAll(int page, int size, String orderBy) {
+    public Page<TubDetailsDTO> findAll(int page, int size, String orderBy, Language language) {
         if (size > 50) size = 50;
         if (size < 1) size = 10;
         if (page < 0) page = 0;
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(orderBy));
-        return tubRepository.findAll(pageable);
+        return tubRepository.findAll(pageable).map(tub -> {
+            TubTranslation translation = tubTranslationRepository.findByTubAndLanguage(tub, language)
+                    .orElseThrow(() -> new NotFoundException("Translation not found for tub " + tub.getId() + " and language " + language));
+
+            return new TubDetailsDTO(
+                    tub.getId(),
+                    translation.getName(),
+                    translation.getDescription(),
+                    tub.getWeight(),
+                    tub.getPrice(),
+                    tub.getImage(),
+                    tub.isAvailable()
+            );
+        });
     }
 
     public Tub findById(UUID id) {
         return tubRepository.findById(id).orElseThrow(() -> new NotFoundException("Tub with id " + id + " not found"));
+    }
+
+    public TubDetailsDTO findById(UUID id, Language language) {
+        Tub tub = findById(id);
+        TubTranslation translation = tubTranslationRepository.findByTubAndLanguage(tub, language)
+                .orElseThrow(() -> new NotFoundException("Translation not found for tub " + id + " and language " + language));
+
+        return new TubDetailsDTO(
+                tub.getId(),
+                translation.getName(),
+                translation.getDescription(),
+                tub.getWeight(),
+                tub.getPrice(),
+                tub.getImage(),
+                tub.isAvailable()
+        );
     }
 
     public Tub findByIdAndUpdate(UUID id, TubDTO payload) {

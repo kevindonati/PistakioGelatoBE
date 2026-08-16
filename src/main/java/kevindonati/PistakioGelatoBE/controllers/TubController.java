@@ -1,7 +1,9 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
 import kevindonati.PistakioGelatoBE.entities.Tub;
+import kevindonati.PistakioGelatoBE.enums.Language;
 import kevindonati.PistakioGelatoBE.payloads.TubDTO;
+import kevindonati.PistakioGelatoBE.payloads.TubDetailsDTO;
 import kevindonati.PistakioGelatoBE.payloads.TubResponseDTO;
 import kevindonati.PistakioGelatoBE.services.TubService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,16 +22,21 @@ public class TubController {
     private TubService tubService;
 
     @GetMapping
-    public Page<Tub> findAll(@RequestParam(defaultValue = "0") int page,
-                             @RequestParam(defaultValue = "10") int size,
-                             @RequestParam(defaultValue = "name") String orderBy
+    public Page<TubDetailsDTO> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "weight") String orderBy,
+            @RequestParam(defaultValue = "EN") Language language
     ) {
-        return tubService.findAll(page, size, orderBy);
+        return tubService.findAll(page, size, orderBy, language);
     }
 
     @GetMapping("/{id}")
-    public Tub findById(@PathVariable UUID id) {
-        return tubService.findById(id);
+    public TubDetailsDTO findById(
+            @PathVariable UUID id,
+            @RequestParam(defaultValue = "EN") Language language
+    ) {
+        return tubService.findById(id, language);
     }
 
     @PostMapping
