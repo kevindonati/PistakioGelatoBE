@@ -206,4 +206,10 @@ public class OrderService {
         }
     }
 
+    public Order findCart() {
+        User authenticatedUser = getAuthenticatedUser();
+
+        return orderRepository.findByUserIdAndOrderStatus(authenticatedUser.getId(), OrderStatus.CART).orElse(null);
+    }
+
 }

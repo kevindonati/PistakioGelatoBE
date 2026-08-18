@@ -21,9 +21,14 @@ public class OrderController {
     @GetMapping
     public Page<Order> findAll(@RequestParam(defaultValue = "0") int page,
                                @RequestParam(defaultValue = "10") int size,
-                               @RequestParam(defaultValue = "name") String orderBy
+                               @RequestParam(defaultValue = "createdAt") String orderBy
     ) {
         return orderService.findAll(page, size, orderBy);
+    }
+
+    @GetMapping("/cart")
+    public Order findCart() {
+        return orderService.findCart();
     }
 
     @GetMapping("/{id}")
