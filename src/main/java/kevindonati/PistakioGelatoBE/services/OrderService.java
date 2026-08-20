@@ -95,6 +95,7 @@ public class OrderService {
         }
 
         double shippingCost = settingsService.getShippingCost();
+        foundedOrder.setShippingCost(shippingCost);
         foundedOrder.setTotal(total + shippingCost);
 
         foundedOrder.setOrderStatus(OrderStatus.PENDING_PAYMENT);
@@ -159,17 +160,39 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    public Page<Order> findAll(int page, int size, String orderBy) {
+    public Page<Order> findAll(int page, int size, String orderBy, String direction) {
+        if (size > 50) {
+            size = 50;
+        }
+        if (size < 1) {
+            size = 10;
+        }
+        if (page < 0) {
+            page = 0;
+        }
+
+        Sort.Direction sortDirection = direction.equalsIgnoreCase("asc")
+                ? Sort.Direction.ASC
+                : Sort.Direction.DESC;
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, orderBy));
+
+        User authenticatedUser = getAuthenticatedUser();
+
+        if (authenticatedUser.getRole() == UserRole.ADMIN) {
+            return orderRepository.findAll(pageable);
+        }
+
+        return orderRepository.findByUserId(authenticatedUser.getId(), pageable);
+    }
+
+    public Page<Order> findMyOrders(int page, int size, String orderBy) {
         if (size > 50) size = 50;
         if (size < 1) size = 10;
         if (page < 0) page = 0;
         Pageable pageable = PageRequest.of(page, size, Sort.by(orderBy));
 
         User authenticatedUser = getAuthenticatedUser();
-        if (authenticatedUser.getRole() == UserRole.ADMIN) {
-            return orderRepository.findAll(pageable);
-        }
-
         return orderRepository.findByUserId(authenticatedUser.getId(), pageable);
     }
 

@@ -33,9 +33,15 @@ public class PaymentController {
         return paymentService.findAll(page, size, orderBy);
     }
 
+
     @GetMapping("/{id}")
     public Payment findById(@PathVariable UUID id) {
         return paymentService.findById(id);
+    }
+
+    @GetMapping("/order/{orderId}")
+    public Payment findByOrderId(@PathVariable UUID orderId) {
+        return paymentService.findByOrderId(orderId);
     }
 
     @PostMapping("/stripe/{orderId}")

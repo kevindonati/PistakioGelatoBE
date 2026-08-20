@@ -47,9 +47,6 @@ public class StripeService {
             throw new BadRequestException("The order total must be greater than zero");
         }
 
-        if (paymentRepository.existsByOrder(order)) {
-            throw new BadRequestException("This order already has a payment");
-        }
 
         List<OrderItem> orderItems = orderItemRepository.findByOrder(order);
 
@@ -57,11 +54,18 @@ public class StripeService {
             throw new BadRequestException("The order has no items");
         }
 
+        Payment existingPayment = paymentRepository.findByOrder(order)
+                .orElse(null);
+
+        if (existingPayment != null &&
+                existingPayment.getStatus() != PaymentStatus.PENDING) {
+            throw new BadRequestException("This order has already been paid");
+        }
         try {
             SessionCreateParams.Builder sessionBuilder =
                     SessionCreateParams.builder()
                             .setMode(SessionCreateParams.Mode.PAYMENT)
-                            .setSuccessUrl(successUrl)
+                            .setSuccessUrl(successUrl + "?orderId=" + order.getId())
                             .setCancelUrl(cancelUrl)
                             .setClientReferenceId(order.getId().toString())
                             .putMetadata(
@@ -73,10 +77,10 @@ public class StripeService {
             for (OrderItem item : orderItems) {
 
                 FlavorTranslation flavorTranslation = flavorTranslationRepository.findByFlavorAndLanguage(item.getFlavor(), language)
-                                .orElseThrow(() -> new BadRequestException("Flavor translation not found for language " + language));
+                        .orElseThrow(() -> new BadRequestException("Flavor translation not found for language " + language));
 
                 TubTranslation tubTranslation = tubTranslationRepository.findByTubAndLanguage(item.getTub(), language)
-                                .orElseThrow(() -> new BadRequestException("Tub translation not found for language " + language));
+                        .orElseThrow(() -> new BadRequestException("Tub translation not found for language " + language));
 
                 String productName = flavorTranslation.getName() + " - " + tubTranslation.getName();
 
@@ -127,14 +131,26 @@ public class StripeService {
 
             Session session = Session.create(sessionBuilder.build());
 
-            Payment payment = new Payment(
-                    ProviderType.STRIPE,
-                    session.getId(),
-                    order.getTotal(),
-                    "EUR",
-                    PaymentStatus.PENDING,
-                    order
-            );
+            Payment payment;
+
+            if (existingPayment != null) {
+                payment = existingPayment;
+                payment.setIdTransaction(session.getId());
+                payment.setAmount(order.getTotal());
+                payment.setCurrency("EUR");
+                payment.setStatus(PaymentStatus.PENDING);
+                payment.setPaymentDate(java.time.LocalDateTime.now());
+            } else {
+                payment = new Payment(
+                        ProviderType.STRIPE,
+                        session.getId(),
+                        order.getTotal(),
+                        "EUR",
+                        PaymentStatus.PENDING,
+                        order
+                );
+            }
+
             paymentRepository.save(payment);
             return session.getUrl();
         } catch (StripeException e) {

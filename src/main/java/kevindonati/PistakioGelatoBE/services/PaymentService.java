@@ -78,4 +78,9 @@ public class PaymentService {
 
         return paymentRepository.save(foundedPayment);
     }
+
+    public Payment findByOrderId(UUID orderId) {
+        Order order = orderService.findById(orderId);
+        return paymentRepository.findByOrder(order).orElseThrow(() -> new NotFoundException("Payment for order " + orderId + " not found"));
+    }
 }

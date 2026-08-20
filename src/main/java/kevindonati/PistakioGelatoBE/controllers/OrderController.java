@@ -21,14 +21,21 @@ public class OrderController {
     @GetMapping
     public Page<Order> findAll(@RequestParam(defaultValue = "0") int page,
                                @RequestParam(defaultValue = "10") int size,
-                               @RequestParam(defaultValue = "createdAt") String orderBy
-    ) {
-        return orderService.findAll(page, size, orderBy);
+                               @RequestParam(defaultValue = "createdAt") String orderBy,
+                               @RequestParam(defaultValue = "desc") String direction) {
+        return orderService.findAll(page, size, orderBy, direction);
     }
 
     @GetMapping("/cart")
     public Order findCart() {
         return orderService.findCart();
+    }
+
+    @GetMapping("/my")
+    public Page<Order> findMyOrders(@RequestParam(defaultValue = "0") int page,
+                                    @RequestParam(defaultValue = "10") int size,
+                                    @RequestParam(defaultValue = "desc") String direction) {
+        return orderService.findMyOrders(page, size, direction);
     }
 
     @GetMapping("/{id}")
