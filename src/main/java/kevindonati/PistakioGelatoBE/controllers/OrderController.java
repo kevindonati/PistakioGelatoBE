@@ -1,15 +1,18 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
 import kevindonati.PistakioGelatoBE.entities.Order;
+import kevindonati.PistakioGelatoBE.enums.OrderStatus;
 import kevindonati.PistakioGelatoBE.payloads.CheckoutDTO;
 import kevindonati.PistakioGelatoBE.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @RestController
@@ -19,11 +22,36 @@ public class OrderController {
     private OrderService orderService;
 
     @GetMapping
-    public Page<Order> findAll(@RequestParam(defaultValue = "0") int page,
-                               @RequestParam(defaultValue = "10") int size,
-                               @RequestParam(defaultValue = "createdAt") String orderBy,
-                               @RequestParam(defaultValue = "desc") String direction) {
-        return orderService.findAll(page, size, orderBy, direction);
+    public Page<Order> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "15") int size,
+            @RequestParam(defaultValue = "createdAt") String orderBy,
+            @RequestParam(defaultValue = "desc") String direction,
+            @RequestParam(required = false) UUID id,
+            @RequestParam(required = false) String customer,
+            @RequestParam(required = false) OrderStatus status,
+            @RequestParam(required = false) Double minTotal,
+            @RequestParam(required = false) Double maxTotal,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate dateFrom,
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+            LocalDate dateTo
+    ) {
+        return orderService.findAllWithFilters(
+                page,
+                size,
+                orderBy,
+                direction,
+                id,
+                customer,
+                status,
+                minTotal,
+                maxTotal,
+                dateFrom,
+                dateTo
+        );
     }
 
     @GetMapping("/cart")

@@ -10,15 +10,18 @@ import kevindonati.PistakioGelatoBE.payloads.CheckoutDTO;
 import kevindonati.PistakioGelatoBE.repositories.FlavorRepository;
 import kevindonati.PistakioGelatoBE.repositories.OrderItemRepository;
 import kevindonati.PistakioGelatoBE.repositories.OrderRepository;
+import kevindonati.PistakioGelatoBE.repositories.specifications.OrderSpecification;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -235,4 +238,50 @@ public class OrderService {
         return orderRepository.findByUserIdAndOrderStatus(authenticatedUser.getId(), OrderStatus.CART).orElse(null);
     }
 
+    public Page<Order> findAllWithFilters(
+            int page,
+            int size,
+            String orderBy,
+            String direction,
+            UUID id,
+            String customer,
+            OrderStatus status,
+            Double minTotal,
+            Double maxTotal,
+            LocalDate dateFrom,
+            LocalDate dateTo
+    ) {
+        if (size > 50) {
+            size = 50;
+        }
+
+        if (size < 1) {
+            size = 10;
+        }
+
+        if (page < 0) {
+            page = 0;
+        }
+
+        Sort.Direction sortDirection;
+
+        try {
+            sortDirection = Sort.Direction.fromString(direction);
+        } catch (IllegalArgumentException e) {
+            sortDirection = Sort.Direction.DESC;
+        }
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sortDirection, orderBy));
+
+        Specification<Order> specification = Specification
+                .where(OrderSpecification.notCart())
+                .and(OrderSpecification.hasId(id))
+                .and(OrderSpecification.hasCustomer(customer))
+                .and(OrderSpecification.hasStatus(status))
+                .and(OrderSpecification.totalGreaterThanOrEqual(minTotal))
+                .and(OrderSpecification.totalLessThanOrEqual(maxTotal))
+                .and(OrderSpecification.createdAtGreaterThanOrEqual(dateFrom))
+                .and(OrderSpecification.createdAtLessThan(dateTo));
+
+        return orderRepository.findAll(specification, pageable);
+    }
 }
