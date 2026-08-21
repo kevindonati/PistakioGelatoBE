@@ -1,5 +1,6 @@
 package kevindonati.PistakioGelatoBE.services;
 
+import jakarta.transaction.Transactional;
 import kevindonati.PistakioGelatoBE.entities.Category;
 import kevindonati.PistakioGelatoBE.entities.Flavor;
 import kevindonati.PistakioGelatoBE.entities.FlavorTranslation;
@@ -157,8 +158,11 @@ public class FlavorService {
         return savedFlavor;
     }
 
+    @Transactional
     public void findByIdAndDelete(UUID id) {
         Flavor foundedFlavor = this.findFlavorEntityById(id);
+
+        flavorTranslationRepository.deleteByFlavor(foundedFlavor);
         flavorRepository.delete(foundedFlavor);
     }
 
