@@ -12,4 +12,6 @@ public interface CategoryTranslationRepository extends JpaRepository<CategoryTra
     Optional<CategoryTranslation> findByCategoryAndLanguage(Category category, Language language);
 
     boolean existsByCategoryAndLanguage(Category category, Language language);
+
+    void deleteByCategory(Category category);
 }

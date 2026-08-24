@@ -1,5 +1,6 @@
 package kevindonati.PistakioGelatoBE.services;
 
+import jakarta.transaction.Transactional;
 import kevindonati.PistakioGelatoBE.entities.Tub;
 import kevindonati.PistakioGelatoBE.entities.TubTranslation;
 import kevindonati.PistakioGelatoBE.enums.Language;
@@ -8,6 +9,7 @@ import kevindonati.PistakioGelatoBE.exceptions.NotFoundException;
 import kevindonati.PistakioGelatoBE.payloads.TubDTO;
 import kevindonati.PistakioGelatoBE.payloads.TubDetailsDTO;
 import kevindonati.PistakioGelatoBE.payloads.TubTranslationDTO;
+import kevindonati.PistakioGelatoBE.repositories.OrderItemRepository;
 import kevindonati.PistakioGelatoBE.repositories.TubRepository;
 import kevindonati.PistakioGelatoBE.repositories.TubTranslationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,9 @@ public class TubService {
 
     @Autowired
     private CloudinaryService cloudinaryService;
+
+    @Autowired
+    private OrderItemRepository orderItemRepository;
 
     public Tub save(TubDTO payload, MultipartFile file) {
         String imageUrl = null;
@@ -135,8 +140,17 @@ public class TubService {
         return savedTub;
     }
 
+    @Transactional
     public void findByIdAndDelete(UUID id) {
         Tub foundedTub = this.findById(id);
+
+        if (orderItemRepository.existsByTub(foundedTub)) {
+            foundedTub.setAvailable(false);
+            tubRepository.save(foundedTub);
+            return;
+        }
+
+        tubTranslationRepository.deleteByTub(foundedTub);
         tubRepository.delete(foundedTub);
     }
 }

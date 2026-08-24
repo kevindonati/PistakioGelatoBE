@@ -10,4 +10,6 @@ import java.util.UUID;
 
 public interface TubTranslationRepository extends JpaRepository<TubTranslation, UUID> {
     Optional<TubTranslation> findByTubAndLanguage(Tub tub, Language language);
+
+    void deleteByTub(Tub tub);
 }

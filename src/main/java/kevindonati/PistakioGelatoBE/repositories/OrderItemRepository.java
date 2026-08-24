@@ -22,4 +22,6 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, UUID> {
     List<OrderItem> findByOrder(Order order);
 
     Page<OrderItem> findByOrderUserId(UUID userId, Pageable pageable);
+
+    boolean existsByTub(Tub tub);
 }

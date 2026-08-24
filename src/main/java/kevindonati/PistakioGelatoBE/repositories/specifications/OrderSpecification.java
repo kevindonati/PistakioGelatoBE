@@ -92,4 +92,14 @@ public class OrderSpecification {
         return (root, query, cb) ->
                 cb.notEqual(root.get("orderStatus"), OrderStatus.CART);
     }
+
+    public static Specification<Order> hasUserId(UUID userId) {
+        return (root, query, cb) ->
+                userId == null
+                        ? null
+                        : cb.equal(
+                        root.get("user").get("id"),
+                        userId
+                );
+    }
 }

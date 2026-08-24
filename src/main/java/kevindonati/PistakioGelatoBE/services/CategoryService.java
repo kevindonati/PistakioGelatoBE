@@ -1,5 +1,6 @@
 package kevindonati.PistakioGelatoBE.services;
 
+import jakarta.transaction.Transactional;
 import kevindonati.PistakioGelatoBE.entities.Category;
 import kevindonati.PistakioGelatoBE.entities.CategoryTranslation;
 import kevindonati.PistakioGelatoBE.enums.Language;
@@ -108,8 +109,10 @@ public class CategoryService {
         return savedCategory;
     }
 
+    @Transactional
     public void findByIdAndDelete(UUID id) {
         Category foundedCategory = this.findById(id);
+        categoryTranslationRepository.deleteByCategory(foundedCategory);
         categoryRepository.delete(foundedCategory);
     }
 }

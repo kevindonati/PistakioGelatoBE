@@ -1,6 +1,7 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
 import kevindonati.PistakioGelatoBE.entities.User;
+import kevindonati.PistakioGelatoBE.enums.UserRole;
 import kevindonati.PistakioGelatoBE.payloads.UserResponseDTO;
 import kevindonati.PistakioGelatoBE.payloads.UserUpdateDTO;
 import kevindonati.PistakioGelatoBE.services.UserService;
@@ -21,12 +22,14 @@ public class UserController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public Page<User> findAll(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "name") String orderBy
-    ) {
-        return userService.findAll(page, size, orderBy);
+    public Page<User> findAll(@RequestParam(defaultValue = "0") int page,
+                              @RequestParam(defaultValue = "10") int size,
+                              @RequestParam(defaultValue = "name") String orderBy,
+                              @RequestParam(required = false) String search,
+                              @RequestParam(required = false) UserRole role,
+                              @RequestParam(required = false) Boolean enabled) {
+
+        return userService.findAll(page, size, orderBy, search, role, enabled);
     }
 
     @GetMapping("/me")

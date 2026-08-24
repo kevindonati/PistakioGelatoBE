@@ -244,12 +244,14 @@ public class OrderService {
             String orderBy,
             String direction,
             UUID id,
+            UUID userId,
             String customer,
             OrderStatus status,
             Double minTotal,
             Double maxTotal,
             LocalDate dateFrom,
             LocalDate dateTo
+
     ) {
         if (size > 50) {
             size = 50;
@@ -275,6 +277,7 @@ public class OrderService {
         Specification<Order> specification = Specification
                 .where(OrderSpecification.notCart())
                 .and(OrderSpecification.hasId(id))
+                .and(OrderSpecification.hasUserId(userId))
                 .and(OrderSpecification.hasCustomer(customer))
                 .and(OrderSpecification.hasStatus(status))
                 .and(OrderSpecification.totalGreaterThanOrEqual(minTotal))
