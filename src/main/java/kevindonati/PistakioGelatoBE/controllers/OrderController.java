@@ -62,10 +62,18 @@ public class OrderController {
     }
 
     @GetMapping("/my")
-    public Page<Order> findMyOrders(@RequestParam(defaultValue = "0") int page,
-                                    @RequestParam(defaultValue = "10") int size,
-                                    @RequestParam(defaultValue = "desc") String direction) {
-        return orderService.findMyOrders(page, size, direction);
+    public Page<Order> findMyOrders(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String orderBy,
+            @RequestParam(defaultValue = "desc") String direction
+    ) {
+        return orderService.findMyOrders(
+                page,
+                size,
+                orderBy,
+                direction
+        );
     }
 
     @GetMapping("/{id}")

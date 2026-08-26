@@ -189,11 +189,23 @@ public class OrderService {
         return orderRepository.findByUserId(authenticatedUser.getId(), pageable);
     }
 
-    public Page<Order> findMyOrders(int page, int size, String orderBy) {
+    public Page<Order> findMyOrders(int page, int size, String orderBy, String direction) {
         if (size > 50) size = 50;
         if (size < 1) size = 10;
         if (page < 0) page = 0;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(orderBy));
+        Sort.Direction sortDirection;
+
+        try {
+            sortDirection = Sort.Direction.fromString(direction);
+        } catch (IllegalArgumentException e) {
+            sortDirection = Sort.Direction.DESC;
+        }
+
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by(sortDirection, orderBy)
+        );
 
         User authenticatedUser = getAuthenticatedUser();
         return orderRepository.findByUserId(authenticatedUser.getId(), pageable);
