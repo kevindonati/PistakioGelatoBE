@@ -211,7 +211,7 @@ public class OrderService {
         return orderRepository.findByUserId(authenticatedUser.getId(), pageable);
     }
 
-    public Order confirmPaymentFromStripe(UUID id) {
+    public Order confirmPayment(UUID id) {
         Order foundedOrder = orderRepository.findById(id).orElseThrow(() -> new NotFoundException("Order with id " + id + " not found"));
 
         if (foundedOrder.getOrderStatus() != OrderStatus.PENDING_PAYMENT) {

@@ -5,6 +5,7 @@ import kevindonati.PistakioGelatoBE.entities.Payment;
 import kevindonati.PistakioGelatoBE.payloads.PaymentStripeResponseDTO;
 import kevindonati.PistakioGelatoBE.services.OrderService;
 import kevindonati.PistakioGelatoBE.services.PaymentService;
+import kevindonati.PistakioGelatoBE.services.PaypalService;
 import kevindonati.PistakioGelatoBE.services.StripeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -23,6 +24,9 @@ public class PaymentController {
 
     @Autowired
     private OrderService orderService;
+
+    @Autowired
+    private PaypalService paypalService;
 
     @GetMapping
     public Page<Payment> findAll(
@@ -50,5 +54,16 @@ public class PaymentController {
         String checkoutUrl = stripeService.createCheckoutSession(order);
 
         return new PaymentStripeResponseDTO(checkoutUrl);
+    }
+
+    @PostMapping("/paypal/{orderId}")
+    public PaypalService.PaypalCreateResponse createPaypalOrder(@PathVariable UUID orderId) {
+        Order order = orderService.findById(orderId);
+        return paypalService.createOrder(order);
+    }
+
+    @PostMapping("/paypal/{paypalOrderId}/capture")
+    public Payment capturePaypalOrder(@PathVariable String paypalOrderId) {
+        return paypalService.captureOrder(paypalOrderId);
     }
 }

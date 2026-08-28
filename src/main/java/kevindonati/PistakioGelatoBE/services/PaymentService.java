@@ -72,7 +72,7 @@ public class PaymentService {
         foundedPayment.setStatus(PaymentStatus.COMPLETED);
         foundedPayment.setStripeEventId(eventId);
 
-        Order order = orderService.confirmPaymentFromStripe(foundedPayment.getOrder().getId());
+        Order order = orderService.confirmPayment(foundedPayment.getOrder().getId());
         orderService.decreaseStock(order);
         emailService.sendPaymentCompleteEmail(order);
 
