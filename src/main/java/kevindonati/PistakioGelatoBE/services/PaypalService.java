@@ -14,10 +14,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
+import tools.jackson.databind.JsonNode;
 
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @Service
@@ -103,7 +105,7 @@ public class PaypalService {
         amount.put("currency_code", "EUR");
         amount.put(
                 "value",
-                String.format("%.2f", order.getTotal())
+                String.format(Locale.US, "%.2f", order.getTotal())
         );
 
         Map<String, Object> purchaseUnit = new HashMap<>();
@@ -156,7 +158,8 @@ public class PaypalService {
                 .body(requestBody)
                 .retrieve()
                 .body(String.class);
-
+        System.out.println("PayPal Create Order response:");
+        System.out.println(response);
         try {
 
             tools.jackson.databind.JsonNode jsonNode =
@@ -167,9 +170,9 @@ public class PaypalService {
 
             String approvalUrl = null;
 
-            for (tools.jackson.databind.JsonNode link : jsonNode.get("links")) {
+            for (JsonNode link : jsonNode.get("links")) {
 
-                if ("payer-action".equals(
+                if ("approve".equals(
                         link.get("rel").asText()
                 )) {
                     approvalUrl =
