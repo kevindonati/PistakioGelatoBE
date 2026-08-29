@@ -1,6 +1,5 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
-import kevindonati.PistakioGelatoBE.entities.Settings;
 import kevindonati.PistakioGelatoBE.services.SettingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -9,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/settings")
 public class SettingsController {
+
     @Autowired
     private SettingsService settingsService;
 
@@ -17,9 +17,35 @@ public class SettingsController {
         return settingsService.getShippingCost();
     }
 
+    @GetMapping("/shipping")
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/shipping-cost")
-    public Settings updateShippingCost(@RequestParam double value) {
-        return settingsService.updateShippingCost(value);
+    public SettingsService.ShippingSettings getShippingSettings() {
+        return settingsService.getShippingSettings();
+    }
+
+    @PutMapping("/shipping")
+    @PreAuthorize("hasRole('ADMIN')")
+    public SettingsService.ShippingSettings updateShippingSettings(@RequestBody ShippingSettingsRequest request) {
+        settingsService.updateShippingSettings(
+                request.weight1(),
+                request.cost1(),
+                request.weight2(),
+                request.cost2(),
+                request.weight3(),
+                request.cost3(),
+                request.costOver()
+        );
+        return settingsService.getShippingSettings();
+    }
+
+    public record ShippingSettingsRequest(
+            double weight1,
+            double cost1,
+            double weight2,
+            double cost2,
+            double weight3,
+            double cost3,
+            double costOver
+    ) {
     }
 }

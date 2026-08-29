@@ -93,11 +93,17 @@ public class OrderService {
         foundedOrder.setNotes(payload.notes());
 
         double total = 0;
+        double totalWeightGrams = 0;
+
         for (OrderItem item : orderItems) {
             total += item.getQuantity() * item.getUnitPrice();
+            totalWeightGrams += (double) item.getTub().getWeight() * item.getQuantity();
         }
 
-        double shippingCost = settingsService.getShippingCost();
+        double totalWeightKg = totalWeightGrams / 1000.0;
+
+        double shippingCost = settingsService.getShippingCost(totalWeightKg);
+
         foundedOrder.setShippingCost(shippingCost);
         foundedOrder.setTotal(total + shippingCost);
 
@@ -298,5 +304,29 @@ public class OrderService {
                 .and(OrderSpecification.createdAtLessThan(dateTo));
 
         return orderRepository.findAll(specification, pageable);
+    }
+
+    public double calculateShippingCost(UUID id) {
+        Order foundedOrder = this.findById(id);
+
+        if (foundedOrder.getOrderStatus() != OrderStatus.CART && foundedOrder.getOrderStatus() != OrderStatus.PENDING_PAYMENT) {
+            throw new BadRequestException("Shipping cost cannot be calculated for this order");
+        }
+
+        List<OrderItem> orderItems = orderItemRepository.findByOrder(foundedOrder);
+
+        if (orderItems.isEmpty()) {
+            throw new BadRequestException("The order has no items");
+        }
+
+        double totalWeightGrams = 0;
+
+        for (OrderItem item : orderItems) {
+            totalWeightGrams += (double) item.getTub().getWeight() * item.getQuantity();
+        }
+
+        double totalWeightKg = totalWeightGrams / 1000.0;
+        return settingsService.getShippingCost(totalWeightKg
+        );
     }
 }

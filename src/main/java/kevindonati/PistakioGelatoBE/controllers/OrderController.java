@@ -56,6 +56,11 @@ public class OrderController {
         );
     }
 
+    @GetMapping("/{id}/shipping-cost")
+    public double calculateShippingCost(@PathVariable UUID id) {
+        return orderService.calculateShippingCost(id);
+    }
+
     @GetMapping("/cart")
     public Order findCart() {
         return orderService.findCart();
