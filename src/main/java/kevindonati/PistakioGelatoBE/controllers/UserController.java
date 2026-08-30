@@ -2,6 +2,8 @@ package kevindonati.PistakioGelatoBE.controllers;
 
 import kevindonati.PistakioGelatoBE.entities.User;
 import kevindonati.PistakioGelatoBE.enums.UserRole;
+import kevindonati.PistakioGelatoBE.payloads.ForgotPasswordDTO;
+import kevindonati.PistakioGelatoBE.payloads.ResetPasswordDTO;
 import kevindonati.PistakioGelatoBE.payloads.UserResponseDTO;
 import kevindonati.PistakioGelatoBE.payloads.UserUpdateDTO;
 import kevindonati.PistakioGelatoBE.services.UserService;
@@ -66,5 +68,17 @@ public class UserController {
         userService.findByIdAndDelete(id);
     }
 
+    @PostMapping("/forgot-password")
+    public void forgotPassword(
+            @RequestBody @Validated ForgotPasswordDTO payload
+    ) {
+        userService.forgotPassword(payload);
+    }
 
+    @PostMapping("/reset-password")
+    public void resetPassword(
+            @RequestBody @Validated ResetPasswordDTO payload
+    ) {
+        userService.resetPassword(payload);
+    }
 }

@@ -1,14 +1,18 @@
 package kevindonati.PistakioGelatoBE.services;
 
+import kevindonati.PistakioGelatoBE.entities.PasswordResetToken;
 import kevindonati.PistakioGelatoBE.entities.User;
 import kevindonati.PistakioGelatoBE.enums.UserRole;
 import kevindonati.PistakioGelatoBE.exceptions.BadRequestException;
 import kevindonati.PistakioGelatoBE.exceptions.NotFoundException;
 import kevindonati.PistakioGelatoBE.exceptions.UnauthorizedException;
-import kevindonati.PistakioGelatoBE.payloads.UserDTO;
+import kevindonati.PistakioGelatoBE.payloads.ForgotPasswordDTO;
+import kevindonati.PistakioGelatoBE.payloads.ResetPasswordDTO;
 import kevindonati.PistakioGelatoBE.payloads.UserUpdateDTO;
+import kevindonati.PistakioGelatoBE.repositories.PasswordResetTokenRepository;
 import kevindonati.PistakioGelatoBE.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,14 +20,28 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
 public class UserService {
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private PasswordResetTokenRepository passwordResetTokenRepository;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Value("${frontend.url}")
+    private String frontendUrl;
 
     private User getAuthenticatedUser() {
         Authentication authentication =
@@ -124,5 +142,78 @@ public class UserService {
 
     public User getMe() {
         return getAuthenticatedUser();
+    }
+
+    public void forgotPassword(ForgotPasswordDTO payload) {
+
+        userRepository.findByEmail(payload.email())
+                .ifPresent(user -> {
+
+                    passwordResetTokenRepository.deleteByUserId(
+                            user.getId()
+                    );
+
+                    String token =
+                            UUID.randomUUID().toString();
+
+                    PasswordResetToken resetToken =
+                            new PasswordResetToken(
+                                    token,
+                                    user,
+                                    LocalDateTime.now().plusMinutes(30)
+                            );
+
+                    passwordResetTokenRepository.save(
+                            resetToken
+                    );
+
+                    String resetUrl =
+                            frontendUrl
+                                    + "/reset-password?token="
+                                    + token;
+
+                    emailService.sendPasswordResetEmail(
+                            user,
+                            resetUrl
+                    );
+                });
+    }
+
+    public void resetPassword(ResetPasswordDTO payload) {
+
+        PasswordResetToken resetToken =
+                passwordResetTokenRepository
+                        .findByToken(payload.token())
+                        .orElseThrow(() ->
+                                new BadRequestException(
+                                        "Invalid or expired reset token"
+                                )
+                        );
+
+        if (resetToken.getExpiresAt()
+                .isBefore(LocalDateTime.now())) {
+
+            passwordResetTokenRepository.delete(
+                    resetToken
+            );
+
+            throw new BadRequestException(
+                    "Invalid or expired reset token"
+            );
+        }
+
+        User user = resetToken.getUser();
+
+        user.setPassword(
+                passwordEncoder.encode(
+                        payload.password()
+                )
+        );
+
+        userRepository.save(user);
+
+        passwordResetTokenRepository.delete(
+                resetToken
+        );
     }
 }

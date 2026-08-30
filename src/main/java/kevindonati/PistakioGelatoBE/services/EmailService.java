@@ -94,4 +94,34 @@ public class EmailService {
         ));
         mailSender.send(message);
     }
+
+    public void sendPasswordResetEmail(
+            User user,
+            String resetUrl
+    ) {
+        SimpleMailMessage message =
+                new SimpleMailMessage();
+
+        message.setFrom("kevindonati5@gmail.com");
+
+        message.setTo(user.getEmail());
+
+        message.setSubject(
+                getMessage(
+                        "password-reset.subject",
+                        user.getLanguage()
+                )
+        );
+
+        message.setText(
+                getMessage(
+                        "password-reset.text",
+                        user.getLanguage(),
+                        user.getName(),
+                        resetUrl
+                )
+        );
+
+        mailSender.send(message);
+    }
 }
