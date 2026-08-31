@@ -6,15 +6,16 @@ import kevindonati.PistakioGelatoBE.enums.PaymentStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, UUID> {
+
     boolean existsByOrder(Order order);
 
     Optional<Payment> findByIdTransaction(String idTransaction);
@@ -25,6 +26,7 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
 
     Optional<Payment> findByOrder(Order order);
 
-    @Query("SELECT COALESCE(SUM(p.amount), 0) FROM Payment p WHERE p.status = :status")
-    double sumAmountByStatus(@Param("status") PaymentStatus status);
+    double sumAmountByStatus(PaymentStatus status);
+
+    List<Payment> findByStatusAndPaymentDateBetween(PaymentStatus status, LocalDateTime start, LocalDateTime end);
 }

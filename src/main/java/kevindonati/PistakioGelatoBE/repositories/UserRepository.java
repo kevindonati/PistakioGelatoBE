@@ -2,6 +2,7 @@ package kevindonati.PistakioGelatoBE.repositories;
 
 import kevindonati.PistakioGelatoBE.entities.User;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,4 +16,6 @@ public interface UserRepository extends JpaRepository<User, UUID>, JpaSpecificat
     Optional<User> findByEmail(String email);
 
     boolean existsByEmail(String email);
+
+    long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 }

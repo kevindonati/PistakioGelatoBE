@@ -8,12 +8,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecificationExecutor<Order> {
+public interface OrderRepository
+        extends JpaRepository<Order, UUID>,
+        JpaSpecificationExecutor<Order> {
+
     List<Order> findByUserId(UUID id);
 
     Page<Order> findByUserId(UUID userId, Pageable pageable);
@@ -21,4 +25,8 @@ public interface OrderRepository extends JpaRepository<Order, UUID>, JpaSpecific
     Optional<Order> findByUserIdAndOrderStatus(UUID userId, OrderStatus orderStatus);
 
     long countByOrderStatus(OrderStatus orderStatus);
+
+    long countByOrderStatusAndCreatedAtBetween(OrderStatus orderStatus, LocalDateTime start, LocalDateTime end);
+
+    long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 }
