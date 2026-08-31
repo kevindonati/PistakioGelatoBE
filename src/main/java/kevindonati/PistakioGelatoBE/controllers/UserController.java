@@ -2,10 +2,7 @@ package kevindonati.PistakioGelatoBE.controllers;
 
 import kevindonati.PistakioGelatoBE.entities.User;
 import kevindonati.PistakioGelatoBE.enums.UserRole;
-import kevindonati.PistakioGelatoBE.payloads.ForgotPasswordDTO;
-import kevindonati.PistakioGelatoBE.payloads.ResetPasswordDTO;
-import kevindonati.PistakioGelatoBE.payloads.UserResponseDTO;
-import kevindonati.PistakioGelatoBE.payloads.UserUpdateDTO;
+import kevindonati.PistakioGelatoBE.payloads.*;
 import kevindonati.PistakioGelatoBE.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -46,7 +43,8 @@ public class UserController {
                 user.getPhone(),
                 user.getRole(),
                 user.isEnabled(),
-                user.getLanguage()
+                user.getLanguage(),
+                user.getCreatedAt()
         );
     }
 
@@ -58,7 +56,7 @@ public class UserController {
     @PutMapping("/{id}")
     public UserResponseDTO update(@PathVariable UUID id, @RequestBody @Validated UserUpdateDTO payload) {
         User updatedUser = userService.findByIdAndUpdate(id, payload);
-        return new UserResponseDTO(updatedUser.getId(), updatedUser.getName(), updatedUser.getSurname(), updatedUser.getEmail(), updatedUser.getPhone(), updatedUser.getRole(), updatedUser.isEnabled(), updatedUser.getLanguage());
+        return new UserResponseDTO(updatedUser.getId(), updatedUser.getName(), updatedUser.getSurname(), updatedUser.getEmail(), updatedUser.getPhone(), updatedUser.getRole(), updatedUser.isEnabled(), updatedUser.getLanguage(), updatedUser.getCreatedAt());
     }
 
     @DeleteMapping("/{id}")
@@ -80,5 +78,23 @@ public class UserController {
             @RequestBody @Validated ResetPasswordDTO payload
     ) {
         userService.resetPassword(payload);
+    }
+
+    @PutMapping("/{id}/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public UserResponseDTO updateByAdmin(@PathVariable UUID id, @RequestBody @Validated AdminUserUpdateDTO payload) {
+        User updatedUser = userService.findByIdAndUpdateByAdmin(id, payload);
+
+        return new UserResponseDTO(
+                updatedUser.getId(),
+                updatedUser.getName(),
+                updatedUser.getSurname(),
+                updatedUser.getEmail(),
+                updatedUser.getPhone(),
+                updatedUser.getRole(),
+                updatedUser.isEnabled(),
+                updatedUser.getLanguage(),
+                updatedUser.getCreatedAt()
+        );
     }
 }

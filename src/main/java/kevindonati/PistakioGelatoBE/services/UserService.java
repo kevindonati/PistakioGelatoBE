@@ -6,6 +6,7 @@ import kevindonati.PistakioGelatoBE.enums.UserRole;
 import kevindonati.PistakioGelatoBE.exceptions.BadRequestException;
 import kevindonati.PistakioGelatoBE.exceptions.NotFoundException;
 import kevindonati.PistakioGelatoBE.exceptions.UnauthorizedException;
+import kevindonati.PistakioGelatoBE.payloads.AdminUserUpdateDTO;
 import kevindonati.PistakioGelatoBE.payloads.ForgotPasswordDTO;
 import kevindonati.PistakioGelatoBE.payloads.ResetPasswordDTO;
 import kevindonati.PistakioGelatoBE.payloads.UserUpdateDTO;
@@ -215,5 +216,23 @@ public class UserService {
         passwordResetTokenRepository.delete(
                 resetToken
         );
+    }
+
+    public User findByIdAndUpdateByAdmin(UUID id, AdminUserUpdateDTO payload) {
+        User foundedUser = this.findById(id);
+
+        if (!foundedUser.getEmail().equals(payload.email()) && userRepository.existsByEmail(payload.email())) {
+            throw new BadRequestException("This email is already registered");
+        }
+
+        foundedUser.setName(payload.name());
+        foundedUser.setSurname(payload.surname());
+        foundedUser.setEmail(payload.email());
+        foundedUser.setPhone(payload.phone());
+        foundedUser.setLanguage(payload.language());
+        foundedUser.setRole(payload.role());
+        foundedUser.setEnabled(payload.enabled());
+
+        return userRepository.save(foundedUser);
     }
 }

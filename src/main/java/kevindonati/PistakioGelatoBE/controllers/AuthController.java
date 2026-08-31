@@ -23,7 +23,7 @@ public class AuthController {
             @RequestBody @Validated UserDTO payload
     ) {
         User savedUser = authService.register(payload);
-        return new UserResponseDTO(savedUser.getId(), savedUser.getName(), savedUser.getSurname(), savedUser.getEmail(), savedUser.getPhone(), savedUser.getRole(), savedUser.isEnabled(), savedUser.getLanguage());
+        return new UserResponseDTO(savedUser.getId(), savedUser.getName(), savedUser.getSurname(), savedUser.getEmail(), savedUser.getPhone(), savedUser.getRole(), savedUser.isEnabled(), savedUser.getLanguage(), savedUser.getCreatedAt());
     }
 
     @PostMapping("/login")

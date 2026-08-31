@@ -3,6 +3,7 @@ package kevindonati.PistakioGelatoBE.payloads;
 import kevindonati.PistakioGelatoBE.enums.Language;
 import kevindonati.PistakioGelatoBE.enums.UserRole;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record UserResponseDTO(UUID id,
@@ -12,6 +13,7 @@ public record UserResponseDTO(UUID id,
                               String phone,
                               UserRole role,
                               boolean enabled,
-                              Language language
+                              Language language,
+                              LocalDateTime createdAt
 ) {
 }
