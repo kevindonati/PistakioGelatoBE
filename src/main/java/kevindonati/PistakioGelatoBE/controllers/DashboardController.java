@@ -18,7 +18,10 @@ public class DashboardController {
 
     @GetMapping("/stats")
     @PreAuthorize("hasRole('ADMIN')")
-    public DashboardStatsDTO getStats(@RequestParam(defaultValue = "MONTH") String period) {
-        return dashboardService.getStats(period);
+    public DashboardStatsDTO getStats(
+            @RequestParam(defaultValue = "MONTH") String period,
+            @RequestParam(defaultValue = "0") int offset
+    ) {
+        return dashboardService.getStats(period, offset);
     }
 }
