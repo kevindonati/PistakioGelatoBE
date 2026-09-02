@@ -40,18 +40,35 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST,
+
+                        // Swagger / OpenAPI
+                        .requestMatchers(
+                                "/swagger-ui.html",
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**"
+                        ).permitAll()
+
+                        // Authentication
+                        .requestMatchers(
+                                HttpMethod.POST,
                                 "/auth/login",
                                 "/auth/register",
                                 "/users/forgot-password",
-                                "/users/reset-password").permitAll()
+                                "/users/reset-password"
+                        ).permitAll()
+
+                        // Stripe webhook
                         .requestMatchers("/payments/webhook").permitAll()
+
+                        // Public catalog
                         .requestMatchers(
                                 HttpMethod.GET,
                                 "/categories/**",
                                 "/flavors/**",
                                 "/tubs/**"
                         ).permitAll()
+
+                        // Everything else requires JWT
                         .anyRequest().authenticated()
                 );
         return httpSecurity.build();
