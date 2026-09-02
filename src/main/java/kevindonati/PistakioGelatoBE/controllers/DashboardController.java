@@ -1,5 +1,6 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import kevindonati.PistakioGelatoBE.payloads.DashboardStatsDTO;
 import kevindonati.PistakioGelatoBE.services.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/admin/dashboard")
+@SecurityRequirement(name = "bearerAuth")
 public class DashboardController {
 
     @Autowired

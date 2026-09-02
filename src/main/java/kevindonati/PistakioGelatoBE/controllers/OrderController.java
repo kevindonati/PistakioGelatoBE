@@ -1,5 +1,6 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import kevindonati.PistakioGelatoBE.entities.Order;
 import kevindonati.PistakioGelatoBE.enums.OrderStatus;
 import kevindonati.PistakioGelatoBE.payloads.CheckoutDTO;
@@ -22,6 +23,7 @@ public class OrderController {
     private OrderService orderService;
 
     @GetMapping
+    @SecurityRequirement(name = "bearerAuth")
     public Page<Order> findAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "15") int size,
@@ -57,16 +59,19 @@ public class OrderController {
     }
 
     @GetMapping("/{id}/shipping-cost")
+    @SecurityRequirement(name = "bearerAuth")
     public double calculateShippingCost(@PathVariable UUID id) {
         return orderService.calculateShippingCost(id);
     }
 
     @GetMapping("/cart")
+    @SecurityRequirement(name = "bearerAuth")
     public Order findCart() {
         return orderService.findCart();
     }
 
     @GetMapping("/my")
+    @SecurityRequirement(name = "bearerAuth")
     public Page<Order> findMyOrders(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -82,28 +87,33 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     public Order findById(@PathVariable UUID id) {
         return orderService.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @SecurityRequirement(name = "bearerAuth")
     public Order save() {
         return orderService.save();
     }
 
     @PutMapping("/{id}/checkout")
+    @SecurityRequirement(name = "bearerAuth")
     public Order checkout(@PathVariable UUID id, @RequestBody @Validated CheckoutDTO payload) {
         return orderService.checkout(id, payload);
     }
 
     @PutMapping("/{id}/cancel")
+    @SecurityRequirement(name = "bearerAuth")
     public Order cancelOrder(@PathVariable UUID id) {
         return orderService.cancelOrder(id);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{id}/prepare")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasRole('ADMIN')")
     public Order startPreparation(@PathVariable UUID id) {
         return orderService.startPreparation(id);
     }

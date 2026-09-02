@@ -13,6 +13,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import java.util.UUID;
 
@@ -38,6 +39,7 @@ public class CategoryController {
 
     @PostMapping(consumes = "multipart/form-data")
     @ResponseStatus(HttpStatus.CREATED)
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     public CategoryResponseDTO save(@RequestPart("data") @Validated CategoryDTO payload, @RequestPart(value = "file", required = false) MultipartFile file) {
         Category savedCategory = categoryService.save(payload, file);
@@ -46,6 +48,7 @@ public class CategoryController {
     }
 
     @PutMapping(value = "/{id}", consumes = "multipart/form-data")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     public Category findByIdAndUpdate(
             @PathVariable UUID id,
@@ -66,6 +69,7 @@ public class CategoryController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     public void findByIdAndDelete(
             @PathVariable UUID id

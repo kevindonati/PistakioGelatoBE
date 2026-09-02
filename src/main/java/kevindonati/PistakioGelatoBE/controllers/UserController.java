@@ -1,5 +1,6 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import kevindonati.PistakioGelatoBE.entities.User;
 import kevindonati.PistakioGelatoBE.enums.UserRole;
 import kevindonati.PistakioGelatoBE.payloads.*;
@@ -20,6 +21,7 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     public Page<User> findAll(@RequestParam(defaultValue = "0") int page,
                               @RequestParam(defaultValue = "10") int size,
@@ -32,6 +34,7 @@ public class UserController {
     }
 
     @GetMapping("/me")
+    @SecurityRequirement(name = "bearerAuth")
     public UserResponseDTO getMe() {
         User user = userService.getMe();
 
@@ -49,17 +52,20 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     public User findById(@PathVariable UUID id) {
         return userService.findById(id);
     }
 
     @PutMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     public UserResponseDTO update(@PathVariable UUID id, @RequestBody @Validated UserUpdateDTO payload) {
         User updatedUser = userService.findByIdAndUpdate(id, payload);
         return new UserResponseDTO(updatedUser.getId(), updatedUser.getName(), updatedUser.getSurname(), updatedUser.getEmail(), updatedUser.getPhone(), updatedUser.getRole(), updatedUser.isEnabled(), updatedUser.getLanguage(), updatedUser.getCreatedAt());
     }
 
     @DeleteMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable UUID id) {
@@ -81,6 +87,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}/admin")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     public UserResponseDTO updateByAdmin(@PathVariable UUID id, @RequestBody @Validated AdminUserUpdateDTO payload) {
         User updatedUser = userService.findByIdAndUpdateByAdmin(id, payload);

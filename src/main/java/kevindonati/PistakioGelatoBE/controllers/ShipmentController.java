@@ -1,5 +1,6 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import kevindonati.PistakioGelatoBE.entities.Shipment;
 import kevindonati.PistakioGelatoBE.enums.ShipmentStatus;
 import kevindonati.PistakioGelatoBE.payloads.ShipmentDTO;
@@ -21,6 +22,7 @@ public class ShipmentController {
     private ShipmentService shipmentService;
 
     @GetMapping
+    @SecurityRequirement(name = "bearerAuth")
     public Page<Shipment> findAll(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -30,12 +32,14 @@ public class ShipmentController {
     }
 
     @GetMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     public Shipment findById(@PathVariable UUID id) {
         return shipmentService.findById(id);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     public ShipmentResponseDTO save(
             @RequestBody @Validated ShipmentDTO payload
@@ -44,6 +48,7 @@ public class ShipmentController {
         return new ShipmentResponseDTO(savedShipment.getId());
     }
 
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/{id}/status")
     public Shipment updateStatus(
@@ -53,6 +58,7 @@ public class ShipmentController {
         return shipmentService.updateStatus(id, status);
     }
 
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

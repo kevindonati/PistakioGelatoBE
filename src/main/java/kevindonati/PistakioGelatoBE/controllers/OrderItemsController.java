@@ -1,5 +1,6 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import kevindonati.PistakioGelatoBE.entities.OrderItem;
 import kevindonati.PistakioGelatoBE.payloads.OrderItemDTO;
@@ -15,6 +16,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/order-items")
+@SecurityRequirement(name = "bearerAuth")
 public class OrderItemsController {
     @Autowired
     private OrderItemService orderItemService;

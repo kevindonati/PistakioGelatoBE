@@ -1,5 +1,6 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import kevindonati.PistakioGelatoBE.entities.Tub;
 import kevindonati.PistakioGelatoBE.enums.Language;
 import kevindonati.PistakioGelatoBE.payloads.TubDTO;
@@ -42,6 +43,7 @@ public class TubController {
 
     @PostMapping(consumes = "multipart/form-data")
     @ResponseStatus(HttpStatus.CREATED)
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     public TubResponseDTO save(
             @RequestPart("data") @Validated TubDTO payload,
@@ -51,6 +53,7 @@ public class TubController {
     }
 
     @PutMapping(value = "/{id}", consumes = "multipart/form-data")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     public Tub findByIdAndUpdate(
             @PathVariable UUID id,
@@ -61,6 +64,7 @@ public class TubController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     public void findByIdAndDelete(@PathVariable UUID id) {
         tubService.findByIdAndDelete(id);

@@ -1,5 +1,6 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import kevindonati.PistakioGelatoBE.entities.Flavor;
 import kevindonati.PistakioGelatoBE.enums.Language;
 import kevindonati.PistakioGelatoBE.payloads.FlavorDTO;
@@ -66,6 +67,7 @@ public class FlavorController {
 
     @PostMapping(consumes = "multipart/form-data")
     @ResponseStatus(HttpStatus.CREATED)
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     public FlavorResponseDTO save(
             @RequestPart("data") @Validated FlavorDTO payload,
@@ -75,6 +77,7 @@ public class FlavorController {
     }
 
     @PutMapping(value = "/{id}", consumes = "multipart/form-data")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     public Flavor findByIdAndUpdate(
             @PathVariable UUID id,
@@ -85,6 +88,7 @@ public class FlavorController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     public void findByIdAndDelete(@PathVariable UUID id) {
         flavorService.findByIdAndDelete(id);

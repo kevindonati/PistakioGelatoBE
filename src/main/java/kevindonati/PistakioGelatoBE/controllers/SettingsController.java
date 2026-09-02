@@ -1,5 +1,6 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import kevindonati.PistakioGelatoBE.services.SettingsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,12 +19,14 @@ public class SettingsController {
     }
 
     @GetMapping("/shipping")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     public SettingsService.ShippingSettings getShippingSettings() {
         return settingsService.getShippingSettings();
     }
 
     @PutMapping("/shipping")
+    @SecurityRequirement(name = "bearerAuth")
     @PreAuthorize("hasRole('ADMIN')")
     public SettingsService.ShippingSettings updateShippingSettings(@RequestBody ShippingSettingsRequest request) {
         settingsService.updateShippingSettings(

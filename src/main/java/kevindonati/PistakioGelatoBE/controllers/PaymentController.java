@@ -1,5 +1,6 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import kevindonati.PistakioGelatoBE.entities.Order;
 import kevindonati.PistakioGelatoBE.entities.Payment;
 import kevindonati.PistakioGelatoBE.payloads.PaymentStripeResponseDTO;
@@ -15,6 +16,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/payments")
+@SecurityRequirement(name = "bearerAuth")
 public class PaymentController {
     @Autowired
     private PaymentService paymentService;

@@ -1,5 +1,6 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import kevindonati.PistakioGelatoBE.entities.Address;
 import kevindonati.PistakioGelatoBE.payloads.AddressDTO;
 import kevindonati.PistakioGelatoBE.payloads.AddressResponseDTO;
@@ -14,6 +15,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/addresses")
+@SecurityRequirement(name = "bearerAuth")
 public class AddressController {
     @Autowired
     private AddressService addressService;
