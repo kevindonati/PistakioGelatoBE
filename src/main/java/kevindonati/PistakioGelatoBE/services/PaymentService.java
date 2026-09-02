@@ -79,8 +79,24 @@ public class PaymentService {
         return paymentRepository.save(foundedPayment);
     }
 
+    @Transactional
+    public Payment failStripePaymentByOrderId(UUID orderId) {
+
+        Payment payment = paymentRepository.findByOrderId(orderId).orElseThrow(() ->
+                new NotFoundException("Payment for order " + orderId + " not found"));
+
+        if (payment.getStatus() == PaymentStatus.COMPLETED) {
+            return payment;
+        }
+
+        payment.setStatus(PaymentStatus.FAILED);
+        return paymentRepository.save(payment);
+    }
+
     public Payment findByOrderId(UUID orderId) {
         Order order = orderService.findById(orderId);
         return paymentRepository.findByOrder(order).orElseThrow(() -> new NotFoundException("Payment for order " + orderId + " not found"));
     }
+
+
 }

@@ -71,8 +71,15 @@ public class StripeService {
                             .putMetadata(
                                     "order_id",
                                     order.getId().toString()
+                            )
+                            .setPaymentIntentData(
+                                    SessionCreateParams.PaymentIntentData.builder()
+                                            .putMetadata(
+                                                    "order_id",
+                                                    order.getId().toString()
+                                            )
+                                            .build()
                             );
-
             Language language = order.getUser().getLanguage();
             for (OrderItem item : orderItems) {
 
@@ -140,6 +147,8 @@ public class StripeService {
                 payment.setCurrency("EUR");
                 payment.setStatus(PaymentStatus.PENDING);
                 payment.setPaymentDate(java.time.LocalDateTime.now());
+                payment.setProvider(ProviderType.STRIPE);
+                payment.setStripeEventId(null);
             } else {
                 payment = new Payment(
                         ProviderType.STRIPE,

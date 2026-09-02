@@ -19,6 +19,7 @@ import java.util.List;
 
 @Configuration
 @EnableMethodSecurity
+
 public class SecurityConfig {
     @Autowired
     private TokenFilter tokenFilter;
@@ -61,7 +62,8 @@ public class SecurityConfig {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
 
         corsConfiguration.setAllowedOrigins(
-                List.of("http://localhost:5173")
+                List.of("http://localhost:5173",
+                        "http://172.20.10.2:5173")
         );
         corsConfiguration.setAllowedMethods(
                 List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")

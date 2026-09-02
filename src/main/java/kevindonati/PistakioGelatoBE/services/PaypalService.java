@@ -95,7 +95,20 @@ public class PaypalService {
 
         Payment existingPayment = paymentRepository.findByOrder(order).orElse(null);
 
-        if (existingPayment != null && existingPayment.getProvider() != ProviderType.PAYPAL && existingPayment.getStatus() != PaymentStatus.FAILED) {
+
+        System.out.println("=== PAYPAL PAYMENT DEBUG ===");
+
+        if (existingPayment == null) {
+            System.out.println("existingPayment = null");
+        } else {
+            System.out.println("provider = " + existingPayment.getProvider());
+            System.out.println("status = " + existingPayment.getStatus());
+            System.out.println("transaction = " + existingPayment.getIdTransaction());
+        }
+
+        System.out.println("============================");
+
+        if (existingPayment != null && existingPayment.getStatus() != PaymentStatus.FAILED && existingPayment.getProvider() != ProviderType.PAYPAL) {
             throw new BadRequestException("This order already has a payment with another provider");
         }
 
@@ -189,28 +202,18 @@ public class PaypalService {
 
             Payment payment;
 
-            if (existingPayment != null &&
-                    existingPayment.getProvider() ==
-                            ProviderType.PAYPAL) {
-
+            if (existingPayment != null) {
+                if (existingPayment.getStatus() != PaymentStatus.FAILED) {
+                    throw new BadRequestException("This order already has a payment");
+                }
                 payment = existingPayment;
-
-                payment.setIdTransaction(
-                        paypalOrderId
-                );
-
-                payment.setAmount(
-                        order.getTotal()
-                );
-
+                payment.setProvider(ProviderType.PAYPAL);
+                payment.setIdTransaction(paypalOrderId);
+                payment.setAmount(order.getTotal());
                 payment.setCurrency("EUR");
-
-                payment.setStatus(
-                        PaymentStatus.PENDING
-                );
-
+                payment.setStatus(PaymentStatus.PENDING);
+                payment.setStripeEventId(null);
             } else {
-
                 payment = new Payment(
                         ProviderType.PAYPAL,
                         paypalOrderId,
@@ -220,21 +223,12 @@ public class PaypalService {
                         order
                 );
             }
-
             paymentRepository.save(payment);
-
-            return new PaypalCreateResponse(
-                    paypalOrderId,
-                    approvalUrl
-            );
-
+            return new PaypalCreateResponse(paypalOrderId, approvalUrl);
         } catch (BadRequestException e) {
             throw e;
-
         } catch (Exception e) {
-            throw new BadRequestException(
-                    "Unable to create PayPal order"
-            );
+            throw new BadRequestException("Unable to create PayPal order");
         }
     }
 

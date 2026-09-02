@@ -38,4 +38,6 @@ public interface PaymentRepository extends JpaRepository<Payment, UUID> {
     );
 
     List<Payment> findByStatusAndPaymentDateBetween(PaymentStatus status, LocalDateTime start, LocalDateTime end);
+
+    Optional<Payment> findByOrderId(UUID orderId);
 }

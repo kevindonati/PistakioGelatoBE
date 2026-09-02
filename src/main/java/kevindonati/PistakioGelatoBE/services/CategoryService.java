@@ -17,22 +17,37 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
 @Service
 public class CategoryService {
+
     @Autowired
     private CategoryRepository categoryRepository;
 
     @Autowired
     private CategoryTranslationRepository categoryTranslationRepository;
 
-    public Category save(CategoryDTO payload) {
-        Category newCategory = new Category(payload.image());
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
+    public Category save(CategoryDTO payload, MultipartFile file) {
+        String imageUrl = null;
+
+        if (file != null && !file.isEmpty()) {
+            imageUrl = cloudinaryService.uploadImage(file);
+        }
+
+        Category newCategory = new Category(imageUrl);
         Category savedCategory = categoryRepository.save(newCategory);
 
         for (CategoryTranslationDTO translation : payload.translations()) {
+            if (categoryTranslationRepository.existsByCategoryAndLanguage(savedCategory, translation.language())) {
+                throw new BadRequestException("A translation for language " + translation.language() + " already exists");
+            }
+
             CategoryTranslation newTranslation = new CategoryTranslation(
                     translation.language(),
                     translation.name(),
@@ -50,8 +65,8 @@ public class CategoryService {
         if (page < 0) page = 0;
 
         Pageable pageable = PageRequest.of(page, size, Sort.by(orderBy));
-
         return categoryRepository.findAll(pageable).map(category -> {
+
             CategoryTranslation translation = categoryTranslationRepository.findByCategoryAndLanguage(category, language)
                     .orElseThrow(() -> new NotFoundException("Translation not found for category " + category.getId() + " and language " + language));
 
@@ -70,6 +85,7 @@ public class CategoryService {
 
     public CategoryDetailsDTO findById(UUID id, Language language) {
         Category category = findById(id);
+
         CategoryTranslation translation = categoryTranslationRepository.findByCategoryAndLanguage(category, language)
                 .orElseThrow(() -> new NotFoundException("Translation not found for category " + id + " and language " + language));
 
@@ -81,29 +97,43 @@ public class CategoryService {
         );
     }
 
-    public Category findByIdAndUpdate(UUID id, CategoryDTO payload) {
+    public Category findByIdAndUpdate(UUID id, CategoryDTO payload, MultipartFile file) {
         Category foundedCategory = this.findById(id);
 
-        foundedCategory.setImage(payload.image());
+        if (file != null && !file.isEmpty()) {
+            String imageUrl = cloudinaryService.uploadImage(file);
+            foundedCategory.setImage(imageUrl);
+        }
 
         Category savedCategory = categoryRepository.save(foundedCategory);
+
         for (CategoryTranslationDTO translation : payload.translations()) {
-            CategoryTranslation existingTranslation = categoryTranslationRepository.findByCategoryAndLanguage(savedCategory, translation.language()).orElse(null);
+            CategoryTranslation existingTranslation = categoryTranslationRepository.findByCategoryAndLanguage(savedCategory, translation.language())
+                    .orElse(null);
 
             if (existingTranslation != null) {
-                existingTranslation.setName(translation.name());
-                existingTranslation.setDescription(translation.description());
-
-                categoryTranslationRepository.save(existingTranslation);
-            } else {
-                CategoryTranslation newTranslation = new CategoryTranslation(
-                        translation.language(),
-                        translation.name(),
-                        translation.description(),
-                        savedCategory
+                existingTranslation.setName(
+                        translation.name()
                 );
 
-                categoryTranslationRepository.save(newTranslation);
+                existingTranslation.setDescription(
+                        translation.description()
+                );
+
+                categoryTranslationRepository.save(
+                        existingTranslation
+                );
+            } else {
+                CategoryTranslation newTranslation =
+                        new CategoryTranslation(
+                                translation.language(),
+                                translation.name(),
+                                translation.description(),
+                                savedCategory
+                        );
+                categoryTranslationRepository.save(
+                        newTranslation
+                );
             }
         }
         return savedCategory;
