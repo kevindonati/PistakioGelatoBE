@@ -8,6 +8,54 @@ Frontend: repository separata, sviluppata con React + TypeScript + Vite.
 
 ---
 
+## Indice
+
+- [Panoramica](#panoramica)
+- [Funzionalità](#funzionalità)
+  - [Area cliente](#area-cliente)
+  - [Area amministrativa](#area-amministrativa)
+  - [Pagamenti](#pagamenti)
+  - [Integrazioni](#integrazioni)
+- [Stack tecnologico](#stack-tecnologico)
+- [Struttura del progetto](#struttura-del-progetto)
+- [Autenticazione e autorizzazione](#autenticazione-e-autorizzazione)
+- [Documentazione API](#documentazione-api)
+  - [Swagger UI](#swagger-ui)
+  - [Autenticazione tramite Swagger](#autenticazione-tramite-swagger)
+  - [Specifica OpenAPI](#specifica-openapi)
+- [Panoramica delle API](#panoramica-delle-api)
+  - [Autenticazione](#autenticazione)
+  - [Utenti](#utenti)
+  - [Indirizzi](#indirizzi)
+  - [Categorie](#categorie)
+  - [Gusti](#gusti)
+  - [Vaschette](#vaschette)
+- [Ordini](#ordini)
+  - [Ciclo di vita dell'ordine](#ciclo-di-vita-dellordine)
+  - [Stati disponibili](#stati-disponibili)
+  - [Endpoint](#endpoint)
+- [Articoli dell'ordine](#articoli-dellordine)
+- [Pagamenti](#pagamenti-1)
+  - [Stati del pagamento](#stati-del-pagamento)
+  - [Provider](#provider)
+- [Spedizioni](#spedizioni)
+- [Impostazioni](#impostazioni)
+- [Dashboard amministrativa](#dashboard-amministrativa)
+- [Database](#database)
+- [Internazionalizzazione](#internazionalizzazione)
+- [Gestione delle immagini](#gestione-delle-immagini)
+- [Configurazione](#configurazione)
+- [Avvio del progetto](#avvio-del-progetto)
+  - [Requisiti](#requisiti)
+  - [Avvio](#avvio)
+  - [Swagger](#swagger)
+- [Sicurezza](#sicurezza)
+- [Stato del progetto](#stato-del-progetto)
+- [Frontend](#frontend)
+
+---
+
+
 ## Panoramica
 
 Pistakio Gelato è progettato come un sistema e-commerce completo composto da due aree principali:
@@ -54,6 +102,22 @@ Il backend espone una **REST API** utilizzata dal frontend per tutte le operazio
 - Dashboard amministrativa
 - Statistiche sulle vendite
 
+### Sistema email automatiche
+
+Il backend integra un sistema di **invio automatico delle email** per comunicare all'utente le principali variazioni relative al proprio account e agli ordini.
+
+Le email vengono generate e inviate automaticamente dal backend in base agli eventi dell'applicazione.
+
+Il sistema può essere utilizzato, ad esempio, per:
+
+- conferma creazione account;
+- conferme relative agli ordini;
+- aggiornamenti sullo stato degli ordini;
+- comunicazioni relative ai pagamenti;
+- recupero e reimpostazione della password;
+
+L'invio delle email viene gestito lato backend, senza richiedere l'intervento manuale dell'amministratore.
+
 ### Pagamenti
 
 - Integrazione con Stripe
@@ -66,6 +130,7 @@ Il backend espone una **REST API** utilizzata dal frontend per tutte le operazio
 - Google Reviews
 - Spedizioni internazionali
 - Supporto multilingua
+- Sistema automatico di invio email
 
 ---
 
@@ -87,6 +152,19 @@ Il backend espone una **REST API** utilizzata dal frontend per tutte le operazio
 | Springdoc OpenAPI | Documentazione delle API |
 
 ---
+
+# Struttura del progetto
+
+| Directory | Responsabilità |
+|---|---|
+| `controller` | Espone gli endpoint REST |
+| `service` | Contiene la logica applicativa |
+| `repository` | Gestisce l'accesso al database |
+| `entity` | Rappresenta le entità JPA |
+| `dto` | Gestisce i dati trasferiti tramite API |
+| `security` | Gestisce autenticazione JWT e sicurezza |
+| `config` | Contiene le configurazioni |
+| `exception` | Gestisce le eccezioni personalizzate |
 
 # Autenticazione e autorizzazione
 
@@ -243,15 +321,6 @@ SHIPPED
 DELIVERED
 ```
 
-Un ordine può inoltre essere annullato:
-
-```text
-CART / PENDING_PAYMENT / PAID
-              │
-              ▼
-          CANCELLED
-```
-
 ### Stati disponibili
 
 | Stato | Descrizione |
@@ -368,37 +437,6 @@ Gli endpoint della dashboard sono accessibili esclusivamente agli amministratori
 
 Il progetto utilizza **PostgreSQL** come database relazionale, con **Spring Data JPA** e **Hibernate** per la persistenza.
 
-### Principali entità
-
-```text
-User
- │
- ├── Address
- │
- └── Order
-      │
-      ├── OrderItem
-      │    ├── Flavor
-      │    └── Tub
-      │
-      ├── Payment
-      │
-      └── Shipment
-
-Category
- └── CategoryTranslation
-
-Flavor
- └── FlavorTranslation
-
-Tub
- └── TubTranslation
-
-Settings
-
-PasswordResetToken
-```
-
 ---
 
 # Internazionalizzazione
@@ -465,35 +503,209 @@ CLOUDINARY_URL
 
 ## Requisiti
 
-- Java 26
-- Maven
-- PostgreSQL
+Prima di avviare il backend è necessario avere installati e configurati:
 
-Sono inoltre necessarie le credenziali per i servizi esterni utilizzati dal progetto.
+- **Java 26**
+- **Maven**
+- **PostgreSQL**
 
-## Avvio
+Sono inoltre necessarie le credenziali per i servizi esterni utilizzati dal progetto:
+
+- **Stripe** per i pagamenti
+- **PayPal** per i pagamenti
+- **Cloudinary** per la gestione delle immagini
+- **Google Reviews** per l'integrazione delle recensioni
+
+## Configurazione
+
+Prima dell'avvio è necessario configurare le variabili d'ambiente utilizzate dal backend.
+
+Le principali variabili richieste sono:
+
+```text
+PORT
+DB_URL
+DB_USERNAME
+DB_PASSWORD
+
+JWT_SECRET
+
+STRIPE_SECRET_KEY
+STRIPE_WEBHOOK_SECRET
+PAYMENT_SUCCESS_URL
+PAYMENT_CANCEL_URL
+
+PAYPAL_ID
+PAYPAL_SECRET
+PAYPAL_URL
+
+CLOUDINARY_NAME
+CLOUDINARY_SECRET
+CLOUDINARY_APIKEY
+
+MAIL_HOST
+MAIL_PORT
+MAIL_USERNAME
+MAIL_PASSWORD
+```
+
+Le credenziali e le chiavi private **non devono essere inserite direttamente nel codice sorgente** e non devono essere pubblicate nel repository Git.
+
+La configurazione viene gestita tramite le proprietà Spring e le relative variabili d'ambiente.
+
+### Database PostgreSQL
+
+Il backend utilizza **PostgreSQL** come database relazionale.
+
+È necessario disporre di un database PostgreSQL attivo e raggiungibile dal backend.
+
+Esempio di configurazione:
+
+```text
+DATABASE_URL=jdbc:postgresql://localhost:5432/pistakio_gelato
+DATABASE_USERNAME=postgres
+DATABASE_PASSWORD=********
+```
+
+Il nome del database e le credenziali possono essere modificati in base alla configurazione dell'ambiente locale.
+
+## Installazione delle dipendenze
+
+Dalla directory principale del backend, eseguire:
+
+```bash
+mvn clean install
+```
+
+Il comando:
+
+- pulisce le build precedenti;
+- scarica le dipendenze definite nel `pom.xml`;
+- compila il progetto;
+- esegue i test disponibili;
+- genera gli artefatti necessari all'esecuzione.
+
+## Avvio del backend
+
+Dopo aver configurato PostgreSQL e le variabili d'ambiente, il backend può essere avviato con:
 
 ```bash
 mvn spring-boot:run
 ```
 
-Il backend sarà disponibile all'indirizzo:
+Se l'avvio viene completato correttamente, il backend sarà disponibile all'indirizzo:
 
 ```text
 http://localhost:3001
 ```
 
-## Swagger
+La REST API utilizzerà quindi la seguente Base URL:
+
+```text
+http://localhost:3001
+```
+
+## Verifica dell'avvio
+
+Per verificare che il backend sia stato avviato correttamente è possibile accedere a Swagger UI:
 
 ```text
 http://localhost:3001/swagger-ui.html
 ```
 
-Specifica OpenAPI:
+Se Swagger UI viene visualizzato correttamente, significa che l'applicazione Spring Boot è attiva e che la documentazione della REST API è disponibile.
+
+## Swagger UI
+
+Il progetto utilizza **Springdoc OpenAPI** per generare automaticamente la documentazione delle API REST.
+
+Swagger UI è disponibile all'indirizzo:
+
+```text
+http://localhost:3001/swagger-ui.html
+```
+
+### Autenticazione tramite Swagger
+
+Gli endpoint protetti utilizzano un **JWT Bearer Token**.
+
+Per ottenere un token è necessario effettuare il login tramite:
+
+```http
+POST /auth/login
+```
+
+Dopo aver ricevuto il JWT, all'interno di Swagger premere **Authorize** e inserire:
+
+```text
+Bearer <JWT>
+```
+
+Dopo l'autorizzazione, Swagger includerà automaticamente il token nelle richieste agli endpoint protetti.
+
+Gli endpoint amministrativi richiedono inoltre un utente autenticato con ruolo:
+
+```text
+ADMIN
+```
+
+## Specifica OpenAPI
+
+La specifica OpenAPI generata dal backend è disponibile in formato JSON:
 
 ```text
 http://localhost:3001/v3/api-docs
 ```
+
+Questa specifica contiene la descrizione strutturata della REST API e può essere utilizzata con strumenti compatibili con lo standard OpenAPI.
+
+## Avvio del frontend
+
+Il frontend è sviluppato separatamente utilizzando:
+
+- **React**
+- **TypeScript**
+- **Vite**
+
+Dopo aver avviato il backend, il frontend deve essere configurato per comunicare con la REST API:
+
+```text
+http://localhost:3001
+```
+
+Dalla directory del frontend è possibile installare le dipendenze con:
+
+```bash
+npm install
+```
+
+e avviare l'ambiente di sviluppo con:
+
+```bash
+npm run dev
+```
+
+Il frontend sarà quindi disponibile sull'indirizzo indicato da Vite, normalmente:
+
+```text
+http://localhost:5173
+```
+
+## Ordine consigliato di avvio
+
+Per avviare correttamente l'intero progetto in ambiente locale:
+
+1. Avviare **PostgreSQL**.
+2. Verificare che il database sia disponibile.
+3. Configurare le variabili d'ambiente del backend.
+4. Posizionarsi nella directory `PistakioGelatoBE`.
+5. Installare e compilare le dipendenze con `mvn clean install`.
+6. Avviare il backend con `mvn spring-boot:run`.
+7. Verificare il funzionamento tramite Swagger UI.
+8. Posizionarsi nella directory `PistakioGelatoFE`.
+9. Installare le dipendenze con `npm install`.
+10. Avviare il frontend con `npm run dev`.
+11. Verificare la comunicazione tra frontend e backend.
 
 ---
 
