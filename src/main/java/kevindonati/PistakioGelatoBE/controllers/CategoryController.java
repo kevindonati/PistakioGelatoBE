@@ -1,5 +1,6 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import kevindonati.PistakioGelatoBE.entities.Category;
 import kevindonati.PistakioGelatoBE.enums.Language;
 import kevindonati.PistakioGelatoBE.payloads.CategoryDTO;
@@ -17,6 +18,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import java.util.UUID;
 
+@Tag(name = "Categories", description = "Category management")
 @RestController
 @RequestMapping("/categories")
 public class CategoryController {

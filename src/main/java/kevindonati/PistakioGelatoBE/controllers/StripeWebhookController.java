@@ -5,6 +5,7 @@ import com.stripe.model.Event;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.checkout.Session;
 import com.stripe.net.Webhook;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import kevindonati.PistakioGelatoBE.services.PaymentService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.util.UUID;
 
+@Tag(name = "Stripe Webhook", description = "Stripe webhook event handling")
 @RestController
 @RequestMapping("/payments")
 public class StripeWebhookController {

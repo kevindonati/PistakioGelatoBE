@@ -1,6 +1,7 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import kevindonati.PistakioGelatoBE.entities.Shipment;
 import kevindonati.PistakioGelatoBE.enums.ShipmentStatus;
 import kevindonati.PistakioGelatoBE.payloads.ShipmentDTO;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@Tag(name = "Shipments", description = "Shipment management")
 @RestController
 @RequestMapping("/shipments")
 public class ShipmentController {

@@ -1,6 +1,7 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import kevindonati.PistakioGelatoBE.entities.Order;
 import kevindonati.PistakioGelatoBE.enums.OrderStatus;
 import kevindonati.PistakioGelatoBE.payloads.CheckoutDTO;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.UUID;
 
+@Tag(name = "Orders", description = "Order management")
 @RestController
 @RequestMapping("/orders")
 public class OrderController {

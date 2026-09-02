@@ -1,6 +1,7 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import kevindonati.PistakioGelatoBE.entities.Flavor;
 import kevindonati.PistakioGelatoBE.enums.Language;
 import kevindonati.PistakioGelatoBE.payloads.FlavorDTO;
@@ -18,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Flavors", description = "Gelato flavor management")
 @RestController
 @RequestMapping("/flavors")
 public class FlavorController {

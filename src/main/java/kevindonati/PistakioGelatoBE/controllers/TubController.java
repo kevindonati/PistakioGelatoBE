@@ -1,6 +1,7 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import kevindonati.PistakioGelatoBE.entities.Tub;
 import kevindonati.PistakioGelatoBE.enums.Language;
 import kevindonati.PistakioGelatoBE.payloads.TubDTO;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
+@Tag(name = "Tubs", description = "Gelato tub management")
 @RestController
 @RequestMapping("/tubs")
 public class TubController {

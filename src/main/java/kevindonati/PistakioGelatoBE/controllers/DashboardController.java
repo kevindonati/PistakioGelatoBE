@@ -1,6 +1,7 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import kevindonati.PistakioGelatoBE.payloads.DashboardStatsDTO;
 import kevindonati.PistakioGelatoBE.services.DashboardService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "Dashboard", description = "Administrative dashboard and statistics")
 @RestController
 @RequestMapping("/admin/dashboard")
 @SecurityRequirement(name = "bearerAuth")

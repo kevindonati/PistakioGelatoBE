@@ -1,6 +1,7 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import kevindonati.PistakioGelatoBE.entities.Order;
 import kevindonati.PistakioGelatoBE.entities.Payment;
 import kevindonati.PistakioGelatoBE.payloads.PaymentStripeResponseDTO;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@Tag(name = "Payments", description = "Payment management")
 @RestController
 @RequestMapping("/payments")
 @SecurityRequirement(name = "bearerAuth")

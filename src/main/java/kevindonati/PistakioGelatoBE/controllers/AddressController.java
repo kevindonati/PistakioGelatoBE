@@ -1,6 +1,7 @@
 package kevindonati.PistakioGelatoBE.controllers;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import kevindonati.PistakioGelatoBE.entities.Address;
 import kevindonati.PistakioGelatoBE.payloads.AddressDTO;
 import kevindonati.PistakioGelatoBE.payloads.AddressResponseDTO;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+@Tag(name = "Addresses", description = "User address management")
 @RestController
 @RequestMapping("/addresses")
 @SecurityRequirement(name = "bearerAuth")
