@@ -535,9 +535,9 @@ Le principali funzionalità previste per il backend sono state implementate:
 - [x] Gestione pagamenti
 - [x] Gestione spedizioni
 - [x] Cloudinary
-- [x] Google Reviews
 - [x] Dashboard amministrativa
 - [x] Swagger / OpenAPI
+- [ ] Google Reviews
 
 ---
 
