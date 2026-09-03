@@ -29,4 +29,8 @@ public interface OrderRepository
     long countByOrderStatusAndCreatedAtBetween(OrderStatus orderStatus, LocalDateTime start, LocalDateTime end);
 
     long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
+
+    long countByCreatedAtAfterAndOrderStatusNot(LocalDateTime dateTime, OrderStatus orderStatus);
+
+    List<Order> findTop10ByCreatedAtAfterAndOrderStatusNotOrderByCreatedAtDesc(LocalDateTime dateTime, OrderStatus orderStatus);
 }
