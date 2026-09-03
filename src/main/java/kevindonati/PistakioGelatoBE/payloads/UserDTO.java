@@ -21,6 +21,8 @@ public record UserDTO(
         )
         String password,
 
+        @Pattern(regexp = "^\\+?[0-9\\s\\-()]{7,20}$",
+                message = "The phone number format is invalid")
         String phone,
 
         @NotNull(message = "Language is mandatory")

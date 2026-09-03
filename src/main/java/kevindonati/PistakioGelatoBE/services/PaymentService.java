@@ -80,7 +80,7 @@ public class PaymentService {
     }
 
     @Transactional
-    public Payment failStripePaymentByOrderId(UUID orderId) {
+    public Payment failPaymentByOrderId(UUID orderId) {
 
         Payment payment = paymentRepository.findByOrderId(orderId).orElseThrow(() ->
                 new NotFoundException("Payment for order " + orderId + " not found"));

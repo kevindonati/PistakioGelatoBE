@@ -58,7 +58,8 @@ public class StripeService {
                 .orElse(null);
 
         if (existingPayment != null &&
-                existingPayment.getStatus() != PaymentStatus.PENDING) {
+                existingPayment.getStatus() != PaymentStatus.PENDING &&
+                existingPayment.getStatus() != PaymentStatus.FAILED) {
             throw new BadRequestException("This order has already been paid");
         }
         try {
@@ -66,7 +67,7 @@ public class StripeService {
                     SessionCreateParams.builder()
                             .setMode(SessionCreateParams.Mode.PAYMENT)
                             .setSuccessUrl(successUrl + "?orderId=" + order.getId())
-                            .setCancelUrl(cancelUrl + "?orderId=" + order.getId())
+                            .setCancelUrl(cancelUrl + "?orderId=" + order.getId() + "&provider=STRIPE")
                             .setClientReferenceId(order.getId().toString())
                             .putMetadata(
                                     "order_id",

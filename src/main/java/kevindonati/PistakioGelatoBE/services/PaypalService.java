@@ -106,8 +106,6 @@ public class PaypalService {
             System.out.println("transaction = " + existingPayment.getIdTransaction());
         }
 
-        System.out.println("============================");
-
         if (existingPayment != null && existingPayment.getStatus() != PaymentStatus.FAILED && existingPayment.getProvider() != ProviderType.PAYPAL) {
             throw new BadRequestException("This order already has a payment with another provider");
         }
@@ -146,7 +144,7 @@ public class PaypalService {
 
         applicationContext.put(
                 "cancel_url",
-                cancelUrl + "?orderId=" + order.getId()
+                cancelUrl + "?orderId=" + order.getId() + "&provider=PAYPAL"
         );
 
         applicationContext.put(

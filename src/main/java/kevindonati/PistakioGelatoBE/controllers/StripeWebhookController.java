@@ -67,12 +67,18 @@ public class StripeWebhookController {
                 System.out.println("Stripe payment failed: " + paymentIntentId);
                 System.out.println("Order collegato: " + orderId);
 
-                paymentService.failStripePaymentByOrderId(UUID.fromString(orderId));
+                paymentService.failPaymentByOrderId(UUID.fromString(orderId));
             }
             return ResponseEntity.ok("Webhook received");
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.internalServerError().body("Error processing webhook");
         }
+    }
+
+    @GetMapping("/cancel")
+    public ResponseEntity<Void> cancelPayment(@RequestParam UUID orderId) {
+        paymentService.failPaymentByOrderId(orderId);
+        return ResponseEntity.noContent().build();
     }
 }
