@@ -24,6 +24,9 @@ public class SecurityConfig {
     @Autowired
     private TokenFilter tokenFilter;
 
+    @Autowired
+    private MaintenanceFilter maintenanceFilter;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -38,6 +41,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .formLogin(formLogin -> formLogin.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(maintenanceFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(tokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
 
@@ -55,6 +59,12 @@ public class SecurityConfig {
                                 "/auth/register",
                                 "/users/forgot-password",
                                 "/users/reset-password"
+                        ).permitAll()
+
+                        // Public settings
+                        .requestMatchers(
+                                HttpMethod.GET,
+                                "/settings/maintenance"
                         ).permitAll()
 
                         // Stripe webhook

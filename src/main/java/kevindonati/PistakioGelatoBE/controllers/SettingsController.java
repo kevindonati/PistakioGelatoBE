@@ -43,6 +43,20 @@ public class SettingsController {
         return settingsService.getShippingSettings();
     }
 
+    @GetMapping("/maintenance")
+    public boolean getMaintenanceMode() {
+        return settingsService.isMaintenanceMode();
+    }
+
+    @PutMapping("/maintenance")
+    @SecurityRequirement(name = "bearerAuth")
+    @PreAuthorize("hasRole('ADMIN')")
+    public boolean updateMaintenanceMode(@RequestBody MaintenanceModeRequest request) {
+        settingsService.updateMaintenanceMode(request.enabled());
+
+        return settingsService.isMaintenanceMode();
+    }
+
     public record ShippingSettingsRequest(
             double weight1,
             double cost1,
@@ -51,6 +65,11 @@ public class SettingsController {
             double weight3,
             double cost3,
             double costOver
+    ) {
+    }
+
+    public record MaintenanceModeRequest(
+            boolean enabled
     ) {
     }
 }

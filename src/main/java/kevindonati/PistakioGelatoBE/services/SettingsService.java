@@ -24,6 +24,8 @@ public class SettingsService {
 
     private static final String SHIPPING_COST_OVER = "SHIPPING_COST_OVER";
 
+    private static final String MAINTENANCE_MODE = "MAINTENANCE_MODE";
+
     public double getShippingCost() {
         return getSettingValue(SHIPPING_COST_1);
     }
@@ -122,5 +124,20 @@ public class SettingsService {
             double cost3,
             double costOver
     ) {
+    }
+
+    public boolean isMaintenanceMode() {
+        return settingsRepository
+                .findByName(MAINTENANCE_MODE)
+                .map(setting -> setting.getValue() == 1)
+                .orElse(false);
+
+    }
+
+    public Settings updateMaintenanceMode(boolean enabled) {
+        return updateSetting(
+                MAINTENANCE_MODE,
+                enabled ? 1 : 0
+        );
     }
 }
