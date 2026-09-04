@@ -5,9 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class PistakioGelatoBeApplication {
-
-	public static void main(String[] args) {
-		SpringApplication.run(PistakioGelatoBeApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(PistakioGelatoBeApplication.class, args);
+    }
 }
