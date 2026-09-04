@@ -91,7 +91,7 @@ public class SecurityConfig {
         corsConfiguration.setAllowedOrigins(
                 List.of("http://localhost:5173",
                         "http://172.20.10.2:5173",
-                        "https://pistakiogelatobe-production.up.railway.app")
+                        "https://pistakio-gelato-fe-eta.vercel.app/")
         );
         corsConfiguration.setAllowedMethods(
                 List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS")
