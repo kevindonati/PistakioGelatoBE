@@ -1,6 +1,6 @@
 # Pistakio Gelato — Backend
 
-API REST per l'e-commerce di **Pistakio Gelato**, sviluppata con Spring Boot.
+API REST per l'e-commerce di **Pistakio Gelato**(https://github.com/kevindonati/PistakioGelatoFE), sviluppata con Spring Boot.
 
 Il backend gestisce l'intero flusso dell'e-commerce: catalogo prodotti, utenti, carrello, ordini, pagamenti, spedizioni e area amministrativa.
 
