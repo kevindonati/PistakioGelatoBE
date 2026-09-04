@@ -8,6 +8,7 @@ import kevindonati.PistakioGelatoBE.entities.User;
 import kevindonati.PistakioGelatoBE.exceptions.UnauthorizedException;
 import kevindonati.PistakioGelatoBE.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -20,6 +21,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
+@Order(1)
 @Component
 public class TokenFilter extends OncePerRequestFilter {
     @Autowired
