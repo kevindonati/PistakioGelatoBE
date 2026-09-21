@@ -4,7 +4,7 @@ API REST per l'e-commerce di [**Pistakio Gelato**](https://pistakiogelato.com), 
 
 Il backend gestisce l'intero flusso dell'e-commerce: catalogo prodotti, utenti, carrello, ordini, pagamenti, spedizioni e area amministrativa.
 
-Frontend: repository separata, sviluppata con React + TypeScript + Vite.
+Frontend: [repository separata](https://github.com/PistakioGelatoFE), sviluppata con React + TypeScript + Vite.
 
 ---
 
